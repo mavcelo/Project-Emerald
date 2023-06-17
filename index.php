@@ -1,5 +1,7 @@
+<?php include('db_config.php'); ?>
+
 <!DOCTYPE html>
-<?php $league_name = 'Emerald League'?>
+<?php $league_name = 'Fart League'?>
 <html lang="en">
   <head>
     <meta charset="UTF-8">
@@ -18,15 +20,18 @@
 	<script src="index.js"></script>
   <div style="background-color:#59db42;margin:auto;margin-left:200px;margin-right:200px;text-align:center;"> Login:
   <br>
-  <form action="/login.php" method="POST">
+  <form action="" method="POST">
     <label for="username">Username: </label>
     <input type="text" id="username" name="username"><br><br>
     <label for="password" style="padding-left:5px">Password: </label>
     <input type="password" id="password" name="password"><br>
     <input type="submit" value="Submit">
   </form>
+  <a href="/register.php">Register Here!</a>
   </div>  
-<?php ?>
+<?php 
+
+?>
 </body>
 </html>
 
