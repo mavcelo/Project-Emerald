@@ -21,29 +21,29 @@ $cant_save = FALSE;
 if(isset($_POST['submit'])) {
     $username = filter_input(INPUT_POST, 'username', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
     if (empty($_POST["username"]) || !preg_match("/[a-zA-Z0-9]+/", $username)) {
-        $nameErr = "Username is required";
+        $nameErr = "Invalid Username, Email, or Password";
         $cant_save = TRUE;
     }
     $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
     if (empty($_POST["email"])) {
-        echo "Email is required";
+        echo "Invalid Username, Email, or Password";
         $cant_save = TRUE;
       } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $cant_save = TRUE;
-            echo "Invalid email format";
+            echo "Invalid Username, Email, or Password";
         }
     $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
     if (empty($_POST["password"])) {
-        echo "Password is required";
+        echo "Invalid Username, Email, or Password";
         $cant_save = TRUE;
     }
     $sql_u = "SELECT * FROM accounts WHERE username='$username'";
     $res_u = mysqli_query($conn, $sql_u);
 
     if(mysqli_num_rows($res_u) > 0) {
-        echo '<br>Username taken!';
+        echo "<br>Invalid Username, Email, or Password";
     } elseif($cant_save) {
-        echo '<br>Please ensure inputs are valid.';
+        echo '<br>Invalid Username, Email, or Password';
     } else {
         $query = "INSERT INTO accounts (username, email, password) 
       	    	  VALUES ('$username', '$email', '$password')";
