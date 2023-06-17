@@ -1,5 +1,5 @@
 <?php 
-
+// ya boi
 include('./db_config.php');
 session_start();
 
