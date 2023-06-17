@@ -10,3 +10,6 @@ on linux: install phpmyadmin, mysql-server, and apache2. Set these up. Add the s
 website will by default be hosted at http://localhost:80 and http://localhost:80/phpmyadmin
 
 More detailed instructions will follow in the future
+
+
+![demo](https://github.com/SYNdiCull/Project-Emerald/assets/77362484/98b0c421-03e1-45d4-857c-23e26b4434a1)
