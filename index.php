@@ -1,7 +1,7 @@
 <?php include('db_config.php'); ?>
 
 <!DOCTYPE html>
-<?php $league_name = 'Fart League'?>
+<?php $league_name = 'Emerald League'?>
 <html lang="en">
   <head>
     <meta charset="UTF-8">
@@ -14,11 +14,12 @@
   <body>
     <main>
         <?php
-            echo '<h1 style="text-align:center"> hello! Welcome to ' . $league_name . ' </h1';
+            echo '<h1 style="text-align:left"> hello! Welcome to ' . $league_name . ' </h1';
         ?>  
     </main>
 	<script src="index.js"></script>
-  <div style="background-color:#59db42;margin:auto;margin-left:200px;margin-right:200px;text-align:center;"> Login:
+  <h2 style="text-align:center;">Login:</h2>
+  <div style=";background-color:#59db42;margin:auto;margin-left:200px;margin-right:200px;text-align:center;height: 500px">
   <br>
   <form action="" method="POST">
     <label for="username">Username: </label>
