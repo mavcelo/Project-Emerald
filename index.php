@@ -67,7 +67,7 @@ if(isset($_POST['submit'])) {
       $error = "Invalid username or password";
       echo $error;
   }
-
+$conn->close();
 }
 
 
