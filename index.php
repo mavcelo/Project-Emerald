@@ -1,4 +1,5 @@
-<?php include('db_config.php'); ?>
+<?php include('db_config.php');
+?>
 
 
 <!DOCTYPE html>
@@ -45,13 +46,22 @@ $username = filter_input(INPUT_POST, 'username', FILTER_SANITIZE_FULL_SPECIAL_CH
 
 if(isset($_POST['submit'])) {
   $sql = $conn->prepare("SELECT * FROM accounts WHERE username = ?");
-  $sql->bind_param("s", $username);
+  $sql->bind_param("s", strtolower($username));
   $sql->execute();
   $result = $sql->get_result()->fetch_assoc();
-
   if ($result && password_verify($_POST['password'], $result['password'])) {
-      // Authentication successful, redirect to a secure page
-      echo 'Logged in!';
+      session_start();
+      session_regenerate_id();
+      $id = session_id();
+      $_SESSION['loggedin'] = TRUE;
+      $_SESSION['username'] = strtolower($_POST['username']);
+      $_SESSION['id'] = $id;
+      if($_SESSION['username'] == 'admin') {
+        $_SESSION['isadmin'] = TRUE;
+      } else {
+        $_SESSION['isadmin'] = FALSE;
+      }
+      header("Location: /dashboard.php");
       exit();
   } else {
       $error = "Invalid username or password";
