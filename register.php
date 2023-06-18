@@ -4,7 +4,9 @@ include('./db_config.php');
 
 ?>
 <h1 style="text-align:center;margin-top:50px;">Register</h1>
-<form method="POST" style="text-align:center;padding:10px;margin-top:300px;">
+<div style='text-align:center;margin-top:200px;'>Password must be 8 characters or longer
+      <br>and contain no spaces</div>
+<form method="POST" style="text-align:center;padding:10px;margin-top:50px;">
     <label for="username" type="text">Username: </label>
     <input type="text" id="username" name="username"> <br>
     <label for="password" type="password">Password: </label>
@@ -16,6 +18,7 @@ include('./db_config.php');
 <?php
 $login_err = "<div style='text-align:center;'>Invalid Username, Email, or Password</div>";
 $cant_save = FALSE;
+
 if(isset($_POST['submit'])) {
     $username = filter_input(INPUT_POST, 'username', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
     $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
@@ -39,7 +42,7 @@ if(isset($_POST['submit'])) {
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $cant_save = TRUE;
         echo $login_err;
-    } elseif (empty($_POST["password"])) {
+    } elseif (empty($_POST["password"]) || strlen($_POST['password']) < 8) {
         echo $login_err;
         $cant_save = TRUE;
     } elseif($sql_u->num_rows > 0) {
