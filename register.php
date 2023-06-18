@@ -1,3 +1,4 @@
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <?php 
 // ya boi
 include('./db_config.php');
@@ -56,7 +57,7 @@ if(isset($_POST['submit'])) {
         $query->bind_param("sss", strtolower($username), $email, $password);
         $query->execute();
         echo '<div style="text-align:center">Saved!</div>';
-        //header("Location: /index.php");
+        header("Location: /index.php");
         exit();
     }
 }
