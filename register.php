@@ -1,7 +1,6 @@
 <?php 
 // ya boi
 include('./db_config.php');
-session_start();
 
 ?>
 <h1 style="text-align:center;margin-top:50px;">Register</h1>
@@ -28,8 +27,11 @@ if(isset($_POST['submit'])) {
     $sql_u->execute();
     $sql_u->store_result();
     
-    if (empty($_POST["username"]) || !preg_match("/[a-zA-Z0-9]+/", $username)) {
+    if (empty($username) || !preg_match("/[a-zA-Z0-9]+/", $username)) {
         echo $login_err;
+        $cant_save = TRUE;
+    } elseif (strpos($_POST["username"], " ") == TRUE) {
+        echo "<div style='text-align:center;'>Whitespaces not allowed</div>";
         $cant_save = TRUE;
     } elseif (empty($_POST["email"])) {
         echo $login_err;
@@ -41,17 +43,17 @@ if(isset($_POST['submit'])) {
         echo $login_err;
         $cant_save = TRUE;
     } elseif($sql_u->num_rows > 0) {
-        echo $login_err;
+        echo "<div style='text-align:center;'>Username Taken</div>";
         echo $sql_u->num_rows;
     } elseif($cant_save) {
         echo $login_err;
     } else {
         $query = $conn->prepare("INSERT INTO accounts (username, email, password) 
       	    	  VALUES (?, ?, ?)");
-        $query->bind_param("sss", $username, $email, $password);
+        $query->bind_param("sss", strtolower($username), $email, $password);
         $query->execute();
         echo '<div style="text-align:center">Saved!</div>';
-        header("Location: /index.php");
+        //header("Location: /index.php");
         exit();
     }
 }
