@@ -1,5 +1,6 @@
 <?php include('db_config.php'); ?>
 
+
 <!DOCTYPE html>
 <?php $league_name = 'Emerald League'?>
 <html lang="en">
@@ -24,9 +25,11 @@
   <form action="" method="POST">
     <label for="username">Username: </label>
     <input type="text" id="username" name="username"><br><br>
+
     <label for="password" style="padding-left:5px">Password: </label>
     <input type="password" id="password" name="password"><br>
-    <input type="submit" value="Submit">
+
+    <input type="submit" name="submit" value="Submit">
   </form>
   <a href="/register.php">Register Here!</a>
   </div>  
@@ -35,5 +38,29 @@
 ?>
 </body>
 </html>
+
+<?php 
+$username = filter_input(INPUT_POST, 'username', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+
+
+if(isset($_POST['submit'])) {
+  $sql = $conn->prepare("SELECT * FROM accounts WHERE username = ?");
+  $sql->bind_param("s", $username);
+  $sql->execute();
+  $result = $sql->get_result()->fetch_assoc();
+
+  if ($result && password_verify($_POST['password'], $result['password'])) {
+      // Authentication successful, redirect to a secure page
+      echo 'Logged in!';
+      exit();
+  } else {
+      $error = "Invalid username or password";
+      echo $error;
+  }
+
+}
+
+
+?>
 
 

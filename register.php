@@ -51,6 +51,7 @@ if(isset($_POST['submit'])) {
         $query->bind_param("sss", $username, $email, $password);
         $query->execute();
         echo '<div style="text-align:center">Saved!</div>';
+        header("Location: /index.php");
         exit();
     }
 }
