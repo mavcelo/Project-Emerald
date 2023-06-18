@@ -3,6 +3,7 @@
 
 
 <!DOCTYPE html>
+
 <?php $league_name = 'Emerald League'?>
 <html lang="en">
   <head>
@@ -10,34 +11,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title><?php echo $league_name?> Home</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="./style.css">
     <link rel="icon" href="./favicon.ico" type="image/x-icon">
   </head>
   <body>
     <main>
-        <?php
-            echo '<h1 style="text-align:left"> hello! Welcome to ' . $league_name . ' </h1';
-        ?>  
+      <?php
+          echo '<h1 style="text-align:center"> Hello! Welcome to ' . $league_name . ' </h1';
+      ?>  
     </main>
-	<script src="index.js"></script>
-  <h2 style="text-align:center;">Login:</h2>
-  <div style=";background-color:#59db42;margin:auto;margin-left:200px;margin-right:200px;text-align:center;height: 500px">
-  <br>
-  <form action="" method="POST">
-    <label for="username">Username: </label>
-    <input type="text" id="username" name="username"><br><br>
-
-    <label for="password" style="padding-left:5px">Password: </label>
-    <input type="password" id="password" name="password"><br>
-
-    <input type="submit" name="submit" value="Submit">
-  </form>
-  <a href="/register.php">Register Here!</a>
-  </div>  
-<?php 
-
-?>
-</body>
+    <h2 style="text-align:center;margin-top:200px;">Login:</h2>
+      <br>
+      <div class="container mt-3 w3-border w3-padding w3-round ws-grey col-md-2">
+        <form action="" method="POST">
+          <div>
+            <label for="username" class="form-label">Username: </label>
+            <input type="text" id="username" class="form-control" placeholder="Enter Username" name="username"><br><br>
+          </div>
+          <div>
+            <label for="password" class="form-label">Password: </label>
+            <input type="password" id="password" class="form-control" placeholder="Enter Password" name="password"><br>
+          </div>  
+          <input type="submit" class="btn btn-secondary my-3" name="submit" value="Submit">
+        </form>
+        <a href="/register.php">
+          <button type="button" class="btn btn-light">Register Here!</button>
+        </a>
+      </div>
+  </body>
 </html>
 
 <?php 
