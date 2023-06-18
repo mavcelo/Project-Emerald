@@ -21,8 +21,12 @@ if(isset($_POST['submit'])) {
     $username = filter_input(INPUT_POST, 'username', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
     $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
     $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
-    $sql_u = "SELECT * FROM accounts WHERE username='$username'";
-    $res_u = mysqli_query($conn, $sql_u);
+    $sql_u = $conn->prepare("SELECT * FROM accounts WHERE username = ?");
+    $sql_u->bind_param("s", $username);
+    // $sql_u = "SELECT * FROM accounts WHERE username='$username'";
+    // $res_u = mysqli_query($conn, $sql_u);
+    $sql_u->execute();
+    $sql_u->store_result();
     
     if (empty($_POST["username"]) || !preg_match("/[a-zA-Z0-9]+/", $username)) {
         echo $login_err;
@@ -36,16 +40,19 @@ if(isset($_POST['submit'])) {
     } elseif (empty($_POST["password"])) {
         echo $login_err;
         $cant_save = TRUE;
-    } elseif(mysqli_num_rows($res_u) > 0) {
+    } elseif($sql_u->num_rows > 0) {
         echo $login_err;
+        echo $sql_u->num_rows;
     } elseif($cant_save) {
         echo $login_err;
     } else {
-        $query = "INSERT INTO accounts (username, email, password) 
-      	    	  VALUES ('$username', '$email', '$password')";
-        $results = mysqli_query($conn, $query);
+        $query = $conn->prepare("INSERT INTO accounts (username, email, password) 
+      	    	  VALUES (?, ?, ?)");
+        $query->bind_param("sss", $username, $email, $password);
+        $query->execute();
         echo '<div style="text-align:center">Saved!</div>';
         exit();
     }
 }
+$conn->close()
 ?>
