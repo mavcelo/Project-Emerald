@@ -48,7 +48,8 @@ $username = filter_input(INPUT_POST, 'username', FILTER_SANITIZE_FULL_SPECIAL_CH
 
 if(isset($_POST['submit'])) {
   $sql = $conn->prepare("SELECT * FROM accounts WHERE username = ?");
-  $sql->bind_param("s", strtolower($username));
+  $username = strtolower($username);
+  $sql->bind_param("s", $username);
   $sql->execute();
   $result = $sql->get_result()->fetch_assoc();
   if ($result && password_verify($_POST['password'], $result['password'])) {
