@@ -12,4 +12,6 @@ website will by default be hosted at http://localhost:80 and http://localhost:80
 More detailed instructions will follow in the future
 
 
-![demo](https://github.com/SYNdiCull/Project-Emerald/assets/77362484/98b0c421-03e1-45d4-857c-23e26b4434a1)
+
+![image](https://github.com/SYNdiCull/Project-Emerald/assets/77362484/4ac315ea-89e6-46c5-be9a-444aed880d26)
+![image](https://github.com/SYNdiCull/Project-Emerald/assets/77362484/8f262873-2346-442f-bb40-436d7026971e)
