@@ -52,10 +52,15 @@ if(isset($_POST['submit'])) {
   $sql->bind_param("s", $username);
   $sql->execute();
   $result = $sql->get_result()->fetch_assoc();
-  if ($result && password_verify($_POST['password'], $result['password'])) {
+
+  
+  $expire_stamp = date('Y-m-d H:i:s', strtotime("+5 min"));
+
+  if ($result && password_verify($_POST['password'], $result['password']) && $_SESSION['attempt'] < 5) {
       session_start();
       session_regenerate_id();
       $id = session_id();
+      unset($_SESSION['attempt']);
       $_SESSION['loggedin'] = TRUE;
       $_SESSION['username'] = strtolower($_POST['username']);
       $_SESSION['id'] = $id;
@@ -67,8 +72,11 @@ if(isset($_POST['submit'])) {
       header("Location: /dashboard.php");
       exit();
   } else {
-      $error = "Invalid username or password";
-      echo $error;
+    if($_SESSION['attempt'] < 5) {
+      echo "<div style='text-align:center;color:red;margin-top:20px'>Incorrect username or password</div>";
+    } else
+      echo "<div style='text-align:center;color:red;margin-top:20px'>You have run out of attempts<br>please try again later.</div>";
+      
   }
 $conn->close();
 }
