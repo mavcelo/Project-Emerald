@@ -41,17 +41,17 @@ if($_SESSION['isadmin'] == TRUE) {
     </nav>
     <div class="row">
         <div class="mt-5 card col m-5" style="width:20rem;margin:20px 0 24px 0">
-            <h4 class="card-title mb-4" style="text-align:center;">Overlay</h4>
+            <h4 class="card-title mb-4" style="text-align:center;">Tournaments</h4>
             <img class="card-img" src="img/splash_brand.jpg">
             <p class="card-text p-2">
-                Show off your teams here.
+                Create tournaments here.
                 <p class="card-text p-2">
-                    This is the overlay you use when
-                    displaying your leagues players that join the tournament lobby.
+                    This is the tournament dashboard you use to create tournaments, generate codes,
+                    and organize teams.
                 </p>
             </p>
             <div class="p-2">
-                <button class="btn btn-primary btn-sm" href="">Go to overlay</button>
+                <button class="btn btn-primary btn-sm" onclick='location.href = "tournament.php";'>Go to tournament</button>
             </div>
         </div>
         <div class="mt-5 card col m-5" style="width:20rem;margin:20px 0 24px 0">
