@@ -5,8 +5,7 @@ include('./db_config.php');
 
 ?>
 <h1 style="text-align:center;margin-top:50px;">Register</h1>
-<div style='text-align:center;margin-top:200px;'>Password must be 8 characters or longer
-      <br>and contain no spaces</div>
+
 <form method="POST" style="text-align:center;padding:10px;margin-top:50px;">
     <label for="username" type="text">Username: </label>
     <input type="text" id="username" name="username"> <br>
@@ -44,8 +43,9 @@ if(isset($_POST['submit'])) {
         $cant_save = TRUE;
         echo $login_err;
     } elseif (empty($_POST["password"]) || strlen($_POST['password']) < 8) {
-        echo $login_err;
+        echo "<div style='text-align:center;margin-top:200px;'>Password must be 8 characters or longer <br>and contain no spaces</div>";
         $cant_save = TRUE;
+      
     } elseif($sql_u->num_rows > 0) {
         echo "<div style='text-align:center;'>Username Taken</div>";
         echo $sql_u->num_rows;
