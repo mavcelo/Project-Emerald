@@ -1,5 +1,10 @@
 <?php
 // Start or resume the session
+
+require 'vendor/autoload.php'; // Include the PhpSpreadsheet library
+
+use PhpOffice\PhpSpreadsheet\IOFactory;
+
 session_start();
 
 // Check if the user list array exists in the session, if not, create it
@@ -32,6 +37,25 @@ if (isset($_POST['remove_selected'])) {
     // Reset array keys to ensure it's sequential
     $_SESSION['user_list'] = array_values($_SESSION['user_list']);
 }
+
+if (isset($_FILES['user_file']) && $_FILES['user_file']['error'] === UPLOAD_ERR_OK) {
+    // Get the uploaded file
+    $file = $_FILES['user_file']['tmp_name'];
+
+    // Load the spreadsheet using PhpSpreadsheet
+    $spreadsheet = IOFactory::load($file);
+
+    // Get the first worksheet
+    $worksheet = $spreadsheet->getActiveSheet();
+
+    // Iterate through the rows and add usernames to the session array
+    foreach ($worksheet->getRowIterator() as $row) {
+        $cellValue = $row->getCellIterator()->current()->getValue();
+        if (!empty($cellValue)) {
+            $_SESSION['user_list'][] = $cellValue;
+        }
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -59,7 +83,7 @@ if (isset($_POST['remove_selected'])) {
     </div><br>
     
     <div class="ms-4 mt-3 w3-border w3-round ws-grey col-md-4" id="usernames">
-        <form method="post">
+        <form method="post" enctype="multipart/form-data">
             <label>User List:</label>
             <select class="col-md-3 form-select" style="height:150px" name="selected_users[]" multiple>
                 <?php
@@ -72,5 +96,12 @@ if (isset($_POST['remove_selected'])) {
             <input type="submit" name="remove_selected" value="Remove Selected Users">
         </form>
     </div>
+
+    <form method="post" enctype="multipart/form-data">
+        <label for="user_file">Upload Spreadsheet:</label>
+        <input type="file" id="user_file" name="user_file" accept=".csv, .xls, .xlsx">
+        <input type="submit" name="upload_file" value="Upload Spreadsheet">
+    </form>
+
 </body>
 </html>
