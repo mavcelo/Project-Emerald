@@ -2,10 +2,9 @@
 <?php 
 // ya boi
 include('./db_config.php');
-
 ?>
 <h1 style="text-align:center;margin-top:50px;">Register</h1>
-<div style='text-align:center;margin-top:200px;'>Password must be 8 characters or longer
+<div style='text-align:center;margin-top:200px;'>When selecting a password please ensure it to be 8 characters or longer
       <br>and contain no spaces</div>
 <form method="POST" style="text-align:center;padding:10px;margin-top:50px;">
     <label for="username" type="text">Username: </label>
@@ -26,8 +25,6 @@ if(isset($_POST['submit'])) {
     $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
     $sql_u = $conn->prepare("SELECT * FROM accounts WHERE username = ?");
     $sql_u->bind_param("s", $username);
-    // $sql_u = "SELECT * FROM accounts WHERE username='$username'";
-    // $res_u = mysqli_query($conn, $sql_u);
     $sql_u->execute();
     $sql_u->store_result();
     
