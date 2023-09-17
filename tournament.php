@@ -10,11 +10,26 @@ if($_SESSION['isadmin'] == TRUE) {
 } else {
     $guestoradmin = 'Guest';
 }
+
+
+/*
+NOTES: 
+
+use riot CLIENT api to grab names on player join in lobby. possibly use 
+async function if that exists in php? or implement JS listener for player join events and add the player to 
+player list. IF not possible, add the players to play in other area on dashboard
+
+*/
+
+
+
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
@@ -24,10 +39,59 @@ if($_SESSION['isadmin'] == TRUE) {
     <link rel="stylesheet" href="./style.css">
   </head>
   <body style="overflow-x: hidden;">
-    <div id="link"></div>
-    
 
-    
+    <div class="ms-4 mt-3 w3-border w3-round ws-grey col-md-4" id="users">
+    Select League of Legends usernames to check:<br>
+      <select class="col-md-3 form-select" style="height:150px" id="summonerNames" multiple>
+        <?php 
+          foreach ($_SESSION['user_list'] as $user) {
+            echo "<option value='$user'>$user</option>";
+          }
+        ?>
+        <!-- Add more options as needed -->
+      </select>
 
+      <button onclick="checkLobby()" class="btn btn-secondary my-3">Check Lobby</button>
+      <p id="lobbyStatus"></p>
+    </div>
+
+    <script>
+        // Function to check the lobby status for selected usernames
+        function checkLobby() {
+            var selectedUsernames = Array.from(document.getElementById("summonerNames").selectedOptions).map(option => option.value);
+            
+            selectedUsernames.forEach(function(summonerName) {
+                var apiUrl = 'https://api.example.com/lol/checklobby?summonerName=' + summonerName; // Replace with the actual API endpoint
+                
+                $.ajax({
+                    url: apiUrl,
+                    method: 'GET',
+                    success: function(data) {
+                        if (data.inLobby) {
+                            $('#lobbyStatus').append(summonerName + ' is in a League of Legends lobby.<br>');
+                            
+                            // Append the username to a text file
+                            $.ajax({
+                                url: 'append_username.php', // Replace with the actual PHP script to append to the file
+                                method: 'POST',
+                                data: {username: summonerName},
+                                success: function(response) {
+                                    console.log(response);
+                                },
+                                error: function() {
+                                    console.error('Error appending username to file.');
+                                }
+                            });
+                        } else {
+                            $('#lobbyStatus').append(summonerName + ' is not in a League of Legends lobby.<br>');
+                        }
+                    },
+                    error: function() {
+                        $('#lobbyStatus').append('Error checking lobby status for ' + summonerName + '.<br>');
+                    }
+                });
+            });
+        }
+    </script>
   </body>
 </html>
