@@ -7,6 +7,16 @@ use PhpOffice\PhpSpreadsheet\IOFactory;
 
 session_start();
 
+if(!isset($_SESSION['id'])) {
+    header("Location: /index.php");
+}
+
+if($_SESSION['isadmin'] == TRUE) {
+    $guestoradmin = 'Admin';
+} else {
+    $guestoradmin = 'Guest';
+}
+
 // Check if the user list array exists in the session, if not, create it
 if (!isset($_SESSION['user_list'])) {
     $_SESSION['user_list'] = array();
@@ -71,7 +81,23 @@ if (isset($_FILES['user_file']) && $_FILES['user_file']['error'] === UPLOAD_ERR_
     <link rel="stylesheet" href="./style.css">
     <title>Add and Remove Users</title>
 </head>
-<body>
+<body style="overflow-x: hidden;">
+    <nav class="navbar bg-dark navbar-dark">
+        <div class="container-fluid" >
+            <a class="navbar-brand">Dashboard</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#collapsibleNavbar">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="collapsibleNavbar">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" style="text-align:right" href="logout.php">Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    
     <div class="ms-4 mt-3 w3-border w3-round ws-grey col-md-4" id="users">
         <h5>Add and Remove Users</h5>
 
