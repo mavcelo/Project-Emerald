@@ -84,7 +84,7 @@ if (isset($_FILES['user_file']) && $_FILES['user_file']['error'] === UPLOAD_ERR_
 <body style="overflow-x: hidden;">
     <nav class="navbar bg-dark navbar-dark">
         <div class="container-fluid" >
-            <a class="navbar-brand">Dashboard</a>
+            <a class="navbar-brand" href="/dashboard.php">Dashboard</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#collapsibleNavbar">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -97,7 +97,7 @@ if (isset($_FILES['user_file']) && $_FILES['user_file']['error'] === UPLOAD_ERR_
             </div>
         </div>
     </nav>
-    
+
     <div class="ms-4 mt-3 w3-border w3-round ws-grey col-md-4" id="users">
         <h5>Add and Remove Users</h5>
 

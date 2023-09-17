@@ -41,7 +41,7 @@ player list. IF not possible, add the players to play in other area on dashboard
   <body style="overflow-x: hidden;">
     <nav class="navbar bg-dark navbar-dark">
         <div class="container-fluid" >
-            <a class="navbar-brand">Dashboard</a>
+            <a class="navbar-brand" href="/dashboard.php>Dashboard</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#collapsibleNavbar">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -54,7 +54,7 @@ player list. IF not possible, add the players to play in other area on dashboard
             </div>
         </div>
     </nav>
-    
+
     <div class="ms-4 mt-3 w3-border w3-round ws-grey col-md-4" id="users">
     Select League of Legends usernames to check:<br>
       <select class="col-md-3 form-select" style="height:150px" id="summonerNames" multiple>

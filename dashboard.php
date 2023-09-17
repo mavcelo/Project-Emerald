@@ -26,7 +26,7 @@ if($_SESSION['isadmin'] == TRUE) {
   <body style="overflow-x: hidden;">
     <nav class="navbar bg-dark navbar-dark">
         <div class="container-fluid" >
-            <a class="navbar-brand">Dashboard</a>
+            <a class="navbar-brand" href="/dashboard.php">Dashboard</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#collapsibleNavbar">
                 <span class="navbar-toggler-icon"></span>
             </button>
