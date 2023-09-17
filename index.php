@@ -1,8 +1,4 @@
 <?php include('db_config.php');
-
-session_start();
-$_SESSION['attempt'] = 0;
-
 ?>
 
 
@@ -61,6 +57,7 @@ if(isset($_POST['submit'])) {
   $expire_stamp = date('Y-m-d H:i:s', strtotime("+5 min"));
 
   if ($result && password_verify($_POST['password'], $result['password']) && $_SESSION['attempt'] < 5) {
+      session_start();
       session_regenerate_id();
       $id = session_id();
       unset($_SESSION['attempt']);
