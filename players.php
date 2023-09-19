@@ -1,7 +1,7 @@
 <?php
-// Start or resume the session
 
-require 'vendor/autoload.php'; // Include the PhpSpreadsheet library
+// php spreadsheet library for speadsheet processing
+require 'vendor/autoload.php';
 
 use PhpOffice\PhpSpreadsheet\IOFactory;
 
@@ -11,6 +11,7 @@ if(!isset($_SESSION['id'])) {
     header("Location: /index.php");
 }
 
+// check if user is admin
 if($_SESSION['isadmin'] == TRUE) {
     $guestoradmin = 'Admin';
 } else {
@@ -24,8 +25,8 @@ if (!isset($_SESSION['user_list'])) {
 
 // Check if the form is submitted to add a user
 if (isset($_POST['add_user'])) {
-    // Get the user's name from the form
-    $newUser = $_POST['user_name'];
+    // Get the user's name from the form, and sanitize
+    $newUser = htmlspecialchars(strip_tags($_POST['user_name']));
 
     // Add the new user to the session array
     $_SESSION['user_list'][] = $newUser;
@@ -34,15 +35,18 @@ if (isset($_POST['add_user'])) {
 // Check if the form is submitted to remove selected users
 if (isset($_POST['remove_selected'])) {
     // Get the selected users to remove
-    $selectedUsers = $_POST['selected_users'];
-
-    // Loop through the selected users and remove them
-    foreach ($selectedUsers as $user) {
-        $index = array_search($user, $_SESSION['user_list']);
-        if ($index !== false) {
-            unset($_SESSION['user_list'][$index]);
+    if (isset($_POST['selected_users'])) {
+        $selectedUsers = $_POST['selected_users'];
+        foreach ($selectedUsers as $user) {
+            $index = array_search(htmlspecialchars(strip_tags($user)), $_SESSION['user_list']);
+            if ($index !== false) {
+                unset($_SESSION['user_list'][$index]);
+            }
         }
     }
+
+    // Loop through the selected users and remove them
+        
 
     // Reset array keys to ensure it's sequential
     $_SESSION['user_list'] = array_values($_SESSION['user_list']);
@@ -62,7 +66,7 @@ if (isset($_FILES['user_file']) && $_FILES['user_file']['error'] === UPLOAD_ERR_
     foreach ($worksheet->getRowIterator() as $row) {
         $cellValue = $row->getCellIterator()->current()->getValue();
         if (!empty($cellValue)) {
-            $_SESSION['user_list'][] = $cellValue;
+            $_SESSION['user_list'][] = htmlspecialchars($cellValue);
         }
     }
 }
