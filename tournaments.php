@@ -41,7 +41,7 @@ player list. IF not possible, add the players to play in other area on dashboard
   <body style="overflow-x: hidden;">
     <nav class="navbar bg-dark navbar-dark">
         <div class="container-fluid" >
-            <a class="navbar-brand" href="/dashboard.php>Dashboard</a>
+            <a class="navbar-brand" href="/dashboard.php">Dashboard</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#collapsibleNavbar">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -49,7 +49,7 @@ player list. IF not possible, add the players to play in other area on dashboard
                 <ul class="navbar-nav">
                     <li class="nav-item">
                         <a class="nav-link" style="text-align:right" href="logout.php">Logout</a>
-                    </li>
+                     </li>
                 </ul>
             </div>
         </div>

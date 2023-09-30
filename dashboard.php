@@ -51,7 +51,7 @@ if($_SESSION['isadmin'] == TRUE) {
                 </p>
             </p>
             <div class="p-2">
-                <button class="btn btn-primary btn-sm" onclick='location.href="tournament.php";'>Go to tournament</button>
+                <button class="btn btn-primary btn-sm" onclick='location.href="tournaments.php";'>Go to tournaments</button>
             </div>
         </div>
         <div class="mt-5 card col m-5" style="width:20rem;margin:20px 0 24px 0">
