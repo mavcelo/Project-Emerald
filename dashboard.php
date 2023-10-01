@@ -23,7 +23,7 @@ if($_SESSION['isadmin'] == TRUE) {
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
     <link rel="stylesheet" href="./style.css">
   </head>
-  <body style="overflow-x: hidden;">
+  <body style="overflow-x: hidden;" class="dashboard">
     <nav class="navbar bg-dark navbar-dark">
         <div class="container-fluid" >
             <a class="navbar-brand" href="/dashboard.php">Dashboard</a>
@@ -65,7 +65,7 @@ if($_SESSION['isadmin'] == TRUE) {
                 </p>
             </p>
             <div class="p-2">
-                <button class="btn btn-primary btn-sm" href="">Go to stats</button>
+                <button class="btn btn-primary btn-sm" onclick='location.href="stats.php";'>Go to stats</button>
             </div>
         </div>
         <div class="mt-5 card col m-5" style="width:20rem;margin:20px 0 24px 0">

@@ -2,6 +2,7 @@
 <?php 
 // ya boi
 include('./db_config.php');
+
 ?>
 <h1 style="text-align:center;margin-top:50px;">Register</h1>
 <div style='text-align:center;margin-top:200px;'>When selecting a password please ensure it to be 8 characters or longer

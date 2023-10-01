@@ -95,6 +95,7 @@ if (isset($_FILES['user_file']) && $_FILES['user_file']['error'] === UPLOAD_ERR_
             <div class="collapse navbar-collapse" id="collapsibleNavbar">
                 <ul class="navbar-nav">
                     <li class="nav-item">
+                        <a class="nav-link" style="text-align:right" href="tournaments.php">Tournaments</a>
                         <a class="nav-link" style="text-align:right" href="logout.php">Logout</a>
                     </li>
                 </ul>

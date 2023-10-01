@@ -48,22 +48,24 @@ player list. IF not possible, add the players to play in other area on dashboard
             <div class="collapse navbar-collapse" id="collapsibleNavbar">
                 <ul class="navbar-nav">
                     <li class="nav-item">
+                        <a class="nav-link" style="text-align:right" href="players.php">Players</a>
                         <a class="nav-link" style="text-align:right" href="logout.php">Logout</a>
                      </li>
                 </ul>
             </div>
         </div>
     </nav>
-
+    
+    <!-- Div that holds the table for the username entries-->
     <div class="ms-4 mt-3 w3-border w3-round ws-grey col-md-4" id="users">
     Select League of Legends usernames to check:<br>
       <select class="col-md-3 form-select" style="height:150px" id="summonerNames" multiple>
         <?php 
+        // Loops through the session array of users to securely get the users from the players page entry 
           foreach ($_SESSION['user_list'] as $user) {
             echo "<option value='$user'>$user</option>";
           }
         ?>
-        <!-- Add more options as needed -->
       </select>
 
       <button onclick="checkLobby()" class="btn btn-secondary my-3">Check Lobby</button>

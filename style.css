@@ -1,0 +1,16 @@
+.dashboard {
+    background-image: url('img/dash_plants.jpg');
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-attachment: fixed;
+    background-size: cover;
+}
+
+.login {
+    background-image: url('img/login_bright_char_corners.jpg');
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-attachment: fixed;
+    background-size: cover;
+}
+

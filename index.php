@@ -4,7 +4,6 @@
 
 <!DOCTYPE html>
 
-<?php $league_name = 'Emerald League'?>
 <html lang="en">
   <head>
     <meta charset="UTF-8">
@@ -15,28 +14,22 @@
     <link rel="stylesheet" href="./style.css">
     <link rel="icon" href="./favicon.ico" type="image/x-icon">
   </head>
-  <body>
+  <body class="login"> 
     <main>
-      <?php
-          echo '<h1 style="text-align:center"> Hello! Welcome to ' . $league_name . ' </h1';
-      ?>  
+ 
     </main>
-    <h2 style="text-align:center;margin-top:200px;">Login:</h2>
-      <br>
-      <div class="container mt-3 w3-border w3-padding w3-round ws-grey col-md-2">
+      <div class="container mt-3 w3-border w3-padding w3-round ws-grey col-md-2" style="padding-top:320px;">
         <form action="" method="POST">
-          <div>
+          <div style="padding-bottom:15px;">
             <label for="username" class="form-label">Username: </label>
-            <input type="text" id="username" class="form-control" placeholder="Enter Username" name="username"><br><br>
-          </div>
-          <div>
+            <input type="text" id="username" class="form-control" placeholder="Enter Username" name="username"><br>
             <label for="password" class="form-label">Password: </label>
-            <input type="password" id="password" class="form-control" placeholder="Enter Password" name="password"><br>
+            <input type="password" id="password" class="form-control" placeholder="Enter Password" name="password">
           </div>  
-          <input type="submit" class="btn btn-secondary my-3" name="submit" value="Submit">
+          <input type="submit" class="btn btn-primary my-2" name="submit" value="Submit">
         </form>
         <a href="/register.php">
-          <button type="button" class="btn btn-light">Register Here!</button>
+          <button type="button" class="btn btn-success">Register Here!</button>
         </a>
       </div>
   </body>
@@ -73,9 +66,9 @@ if(isset($_POST['submit'])) {
       exit();
   } else {
     if($_SESSION['attempt'] < 5) {
-      echo "<div style='text-align:center;color:red;margin-top:20px'>Incorrect username or password</div>";
+      echo "<div style='text-align:center;color:red;margin-top:20px;padding-right:60px;'>Incorrect username or password</div>";
     } else
-      echo "<div style='text-align:center;color:red;margin-top:20px'>You have run out of attempts<br>please try again later.</div>";
+      echo "<div style='text-align:center;color:red;margin-top:20px;padding-right:60px;'>You have run out of attempts<br>please try again later.</div>";
       
   }
 $conn->close();
