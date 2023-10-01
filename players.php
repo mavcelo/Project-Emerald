@@ -96,6 +96,7 @@ if (isset($_FILES['user_file']) && $_FILES['user_file']['error'] === UPLOAD_ERR_
                 <ul class="navbar-nav">
                     <li class="nav-item">
                         <a class="nav-link" style="text-align:right" href="tournaments.php">Tournaments</a>
+                        <a class="nav-link" style="text-align:right" href="stats.php">Stats</a>
                         <a class="nav-link" style="text-align:right" href="logout.php">Logout</a>
                     </li>
                 </ul>
@@ -126,13 +127,14 @@ if (isset($_FILES['user_file']) && $_FILES['user_file']['error'] === UPLOAD_ERR_
             </select>
             <input type="submit" name="remove_selected" value="Remove Selected Users">
         </form>
+        <form method="post" enctype="multipart/form-data" style="padding-top:10px">
+            <label for="user_file">Upload Spreadsheet:</label>
+            <input type="file" id="user_file" name="user_file" accept=".csv, .xls, .xlsx">
+            <input type="submit" name="upload_file" value="Upload Spreadsheet">
+        </form>
     </div>
 
-    <form method="post" enctype="multipart/form-data">
-        <label for="user_file">Upload Spreadsheet:</label>
-        <input type="file" id="user_file" name="user_file" accept=".csv, .xls, .xlsx">
-        <input type="submit" name="upload_file" value="Upload Spreadsheet">
-    </form>
+
 
 </body>
 </html>

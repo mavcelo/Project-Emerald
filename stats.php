@@ -50,13 +50,29 @@ if($_SESSION['isadmin'] == TRUE) {
     
     
         <div class="ms-4 mt-3 w3-border w3-round ws-grey col-md-4" id="users">
-        <select class="col-md-3 form-select" style="height:150px" id="summonerNames" multiple>
-            <?php 
-            // Loops through the session array of users to securely get the users from the players page entry 
-            foreach ($_SESSION['user_list'] as $user) {
-                echo "<option value='$user'>$user</option>";
-            }
-            ?>
-        </select>
+            <table class="table table-hover" style="height:150px" id="summonerNames" multiple>
+                <thead>
+                    <th>Username</th>
+                    <th>
+                </thead>
+                <tbody>
+                    <?php 
+                    // Loops through the session array of users to securely get the users from the players page entry 
+                    if (isset($_SESSION['user_list'][0])) {
+                        foreach ($_SESSION['user_list'] as $user) {
+                            $url = "'https://www.op.gg/summoners/na/".urlencode($user)."'";
+                            echo "
+                            <tr>
+                                <td value='$user' onclick=location.href=$url>$user</td>
+                            </tr>
+                            ";
+                        }
+                    } else {
+                        echo "<tr><td>No Players Found</tr></td>";
+                    }
+                    ?>
+                </tbody>
+            </table>
+        </div>
 
     </body>

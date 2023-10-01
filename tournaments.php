@@ -48,6 +48,7 @@ player list. IF not possible, add the players to play in other area on dashboard
             <div class="collapse navbar-collapse" id="collapsibleNavbar">
                 <ul class="navbar-nav">
                     <li class="nav-item">
+                        <a class="nav-link" style="text-align:right" href="stats.php">Stats</a>
                         <a class="nav-link" style="text-align:right" href="players.php">Players</a>
                         <a class="nav-link" style="text-align:right" href="logout.php">Logout</a>
                      </li>
@@ -110,5 +111,32 @@ player list. IF not possible, add the players to play in other area on dashboard
             });
         }
     </script>
+    <div class="col-md-2">
+        <table class="table table-hover" style="height:150px" id="summonerNames" multiple>
+            <thead>
+                <th>Name</th>
+                <th>Rank</th>
+                <th>Role</th>
+            </thead>
+            <tbody>
+            <?php 
+                // Loops through the session array of users to securely get the users from the players page entry 
+                if (isset($_SESSION['user_list'][0])) {
+                    foreach ($_SESSION['user_list'] as $user) {
+                        $url = "'https://www.op.gg/summoners/na/".urlencode($user)."'";
+                        echo "
+                        <tr>
+                            <td value='$user' onclick=location.href=$url>$user</td>
+                        </tr>
+                        ";
+                    }
+                } else {
+                    echo "<tr><td>No Players Found</tr></td>";
+                }
+                ?>
+            </tbody>
+        </table>
+    </div>
+
   </body>
 </html>
