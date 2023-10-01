@@ -3,10 +3,10 @@
 ## Table of Contents
 
 1. [Introduction](#1-Introduction)
-2. Features
-3. Installation
-    a. Installing PHP on Mac
-    b. Installing PHP on Windows
+2. [Features](#2-leatures)
+3. [Installation](#3-installation)
+    a. [Installing PHP on Mac](#a-installing-php-on-mac)
+    b. [Installing PHP on Windows](#b-installing-php-on-windows)
 4. Usage
 5. Support
 6. Contributing
