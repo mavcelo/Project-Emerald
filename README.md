@@ -2,7 +2,7 @@
 
 ## Table of Contents
 
-1. [Introduction](## 1. Introduction)
+1. [Introduction](#Introduction)
 2. Features
 3. Installation
     a. Installing PHP on Mac
