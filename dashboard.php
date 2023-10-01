@@ -40,7 +40,7 @@ if($_SESSION['isadmin'] == TRUE) {
         </div>
     </nav>
     <div class="row">
-        <div class="mt-5 card col m-5" style="width:20rem;margin:20px 0 24px 0">
+        <div class="mt-5 card col m-5" style="width:20rem;margin:20px 0 24px 0;" id="card">
             <h4 class="card-title mb-4" style="text-align:center;">Tournaments</h4>
             <img class="card-img" src="img/splash_brand.jpg">
             <p class="card-text p-2">
@@ -54,7 +54,7 @@ if($_SESSION['isadmin'] == TRUE) {
                 <button class="btn btn-primary btn-sm" onclick='location.href="tournaments.php";'>Go to tournaments</button>
             </div>
         </div>
-        <div class="mt-5 card col m-5" style="width:20rem;margin:20px 0 24px 0">
+        <div class="mt-5 card col m-5" style="width:20rem;margin:20px 0 24px 0" id="card">
             <h4 class="card-title mb-4" style="text-align:center;">Stats</h4>
             <img class="card-img" src="img/splash_yi.jpg">
             <p class="card-text p-2">
@@ -68,7 +68,7 @@ if($_SESSION['isadmin'] == TRUE) {
                 <button class="btn btn-primary btn-sm" onclick='location.href="stats.php";'>Go to stats</button>
             </div>
         </div>
-        <div class="mt-5 card col m-5" style="width:20rem;margin:20px 0 24px 0">
+        <div class="mt-5 card col m-5" style="width:20rem;margin:20px 0 24px 0" id="card">
             <h4 class="card-title mb-4" style="text-align:center;">Players</h4>
             <img class="card-img" src="img/splash_zed.jpg">
             <p class="card-text p-2">
