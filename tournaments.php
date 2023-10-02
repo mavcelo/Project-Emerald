@@ -133,82 +133,80 @@ function tablePop() {
 ?>
 
 
-    <div class="container col-md-12" style="margin-top: 250px;">
-        <div class="col-md-2" id="slottable" style="float: left;padding-left:90px;">
-            <table class="table table-hover" style="height:150px" id="summonerNames" multiple>
-                <thead>
-                    <th>Name</th>
-                    <th>Rank</th>
-                    <th>Role</th>
-                </thead>
-                <tbody>
-                <?php 
-                    // Loops through the session array of users to securely get the users from the players page entry 
-                    if (isset($_SESSION['user_list'][0])) {
-                        foreach ($_SESSION['user_list'] as $user) {
-                            $url = "'https://www.op.gg/summoners/na/".urlencode($user)."'";
-                            echo "
-                            <tr>
-                                <td value='$user' onclick=location.href=$url>$user</td>
-                            </tr>
-                            ";
+            <div class="col-md-2 pr-2 float-left" id="slottable" style="margin-top: 250px;margin-left:120px;padding-left:10px">
+                <table class="table table-hover pr-2" style="height:150px" id="summonerNames" multiple>
+                    <thead>
+                        <th>Name</th>
+                        <th>Rank</th>
+                        <th>Role</th>
+                    </thead>
+                    <tbody>
+                    <?php 
+                        // Loops through the session array of users to securely get the users from the players page entry 
+                        if (isset($_SESSION['user_list'][0])) {
+                            foreach ($_SESSION['user_list'] as $user) {
+                                $url = "'https://www.op.gg/summoners/na/".urlencode($user)."'";
+                                echo "
+                                <tr>
+                                    <td value='$user' onclick=location.href=$url>$user</td>
+                                </tr>
+                                ";
+                            }
+                        } else {
+                            echo "<tr><td>No Players Found</tr></td>";
                         }
-                    } else {
-                        echo "<tr><td>No Players Found</tr></td>";
-                    }
-                    ?>
-                </tbody>
-            </table>
-        </div>
-        <div class="col-md-2" id="slottable" style="float: left;padding-left:90px;">
-            <table class="table table-hover" style="height:150px" id="summonerNames" multiple>
-                <thead>
-                    <th>Name</th>
-                    <th>Rank</th>
-                    <th>Role</th>
-                </thead>
-                <tbody>
-                    <?php tablePop();?>
-                </tbody>
-            </table>
-        </div>
-        <div class="col-md-2" id="slottable" style="float: left;padding-left:90px;">
-            <table class="table table-hover" style="height:150px" id="summonerNames" multiple>
-                <thead>
-                    <th>Name</th>
-                    <th>Rank</th>
-                    <th>Role</th>
-                </thead>
-                <tbody>
-                    <?php tablePop();?>
-                </tbody>
-            </table>
-        </div>
-        <div class="col-md-2" id="slottable" style="float: left;padding-left:90px;">
-            <table class="table table-hover" style="height:150px" id="summonerNames" multiple>
-                <thead>
-                    <th>Name</th>
-                    <th>Rank</th>
-                    <th>Role</th>
-                </thead>
-                <tbody>
-                    <?php tablePop();?>
-                </tbody>
-            </table>
-        </div>
-        <div class="col-md-2" id="slottable" style="float: left;padding-left:90px;">
-            <table class="table table-hover" style="height:150px" id="summonerNames" multiple>
-                <thead>
-                    <th>Name</th>
-                    <th>Rank</th>
-                    <th>Role</th>
-                </thead>
-                <tbody>
-                    <?php tablePop();?>
-                </tbody>
-            </table>
-        </div>
-    </div>
+                        ?>
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-md-2 pr-2 float-left pl-10" id="slottable" style="margin-top: 250px;padding-left:10px">
+                <table class="table table-hover" style="height:150px;padding-right:30px;" id="summonerNames" multiple>
+                    <thead>
+                        <th>Name</th>
+                        <th>Rank</th>
+                        <th>Role</th>
+                    </thead>
+                    <tbody>
+                        <?php tablePop();?>
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-md-2 pr-2 float-left pl-10" id="slottable" style="margin-top: 250px;padding-left:10px">
+                <table class="table table-hover" style="height:150px" id="summonerNames" multiple>
+                    <thead>
+                        <th>Name</th>
+                        <th>Rank</th>
+                        <th>Role</th>
+                    </thead>
+                    <tbody>
+                        <?php tablePop();?>
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-md-2 mr-2 float-left pl-10" id="slottable"style="margin-top: 250px;padding-left:10px">
+                <table class="table table-hover" style="height:150px" id="summonerNames" multiple>
+                    <thead>
+                        <th>Name</th>
+                        <th>Rank</th>
+                        <th>Role</th>
+                    </thead>
+                    <tbody>
+                        <?php tablePop();?>
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-md-2 mr-2 float-left pl-10" id="slottable" style="margin-top: 250px;padding-left:10px">
+                <table class="table table-hover" style="height:150px" id="summonerNames" multiple>
+                    <thead>
+                        <th>Name</th>
+                        <th>Rank</th>
+                        <th>Role</th>
+                    </thead>
+                    <tbody>
+                        <?php tablePop();?>
+                    </tbody>
+                </table>
+            </div>
 
     </body>
 </html>
