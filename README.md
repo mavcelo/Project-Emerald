@@ -8,8 +8,8 @@
     * [Installing PHP on Mac](#a-installing-php-on-mac)
     * [Installing PHP on Windows](#b-installing-php-on-windows)
 5. [Usage](#4-usage)
-6. [Support](5-support)
-7. [Contributing](6-contributing)
+6. [Support](#5-support)
+7. [Contributing](#6-contributing)
 8. [License](#7-license)
 
 ## 1. Introduction
