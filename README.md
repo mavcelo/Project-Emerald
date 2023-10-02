@@ -5,8 +5,8 @@
 1. [Introduction](#1-Introduction)
 2. [Features](#2-leatures)
 3. [Installation](#3-installation)
-    a. [Installing PHP on Mac](#a-installing-php-on-mac)
-    b. [Installing PHP on Windows](#b-installing-php-on-windows)
+    * [Installing PHP on Mac](#a-installing-php-on-mac)
+    * [Installing PHP on Windows](#b-installing-php-on-windows)
 5. Usage
 6. Support
 7. Contributing
