@@ -28,17 +28,17 @@ player list. IF not possible, add the players to play in other area on dashboard
 
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Dashboard</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
-    <link rel="stylesheet" href="./style.css">
-  </head>
-  <body style="overflow-x: hidden;">
+    <head>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>Dashboard</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+        <link rel="stylesheet" href="./style.css">
+        </head>
+    <body style="overflow-x: hidden;">
     <nav class="navbar bg-dark navbar-dark">
         <div class="container-fluid" >
             <a class="navbar-brand" href="/dashboard.php">Dashboard</a>
@@ -111,32 +111,104 @@ player list. IF not possible, add the players to play in other area on dashboard
             });
         }
     </script>
-    <div class="col-md-2">
-        <table class="table table-hover" style="height:150px" id="summonerNames" multiple>
-            <thead>
-                <th>Name</th>
-                <th>Rank</th>
-                <th>Role</th>
-            </thead>
-            <tbody>
-            <?php 
-                // Loops through the session array of users to securely get the users from the players page entry 
-                if (isset($_SESSION['user_list'][0])) {
-                    foreach ($_SESSION['user_list'] as $user) {
-                        $url = "'https://www.op.gg/summoners/na/".urlencode($user)."'";
-                        echo "
-                        <tr>
-                            <td value='$user' onclick=location.href=$url>$user</td>
-                        </tr>
-                        ";
+
+
+<?php 
+// Loops through the session array of users to securely get the users from the players page entry 
+function tablePop() {
+    if (isset($_SESSION['user_list'][0])) {
+    foreach ($_SESSION['user_list'] as $user) {
+        $url = "'https://www.op.gg/summoners/na/".urlencode($user)."'";
+        echo "
+        <tr>
+            <td value='$user' onclick=location.href=$url>$user</td>
+        </tr>
+        ";
+    }
+    } else {
+        echo "<tr><td>No Players Found</tr></td>";
+    }
+}
+
+?>
+
+
+    <div class="container col-md-12" style="margin-top: 250px;">
+        <div class="col-md-2" id="slottable" style="float: left;padding-left:90px;">
+            <table class="table table-hover" style="height:150px" id="summonerNames" multiple>
+                <thead>
+                    <th>Name</th>
+                    <th>Rank</th>
+                    <th>Role</th>
+                </thead>
+                <tbody>
+                <?php 
+                    // Loops through the session array of users to securely get the users from the players page entry 
+                    if (isset($_SESSION['user_list'][0])) {
+                        foreach ($_SESSION['user_list'] as $user) {
+                            $url = "'https://www.op.gg/summoners/na/".urlencode($user)."'";
+                            echo "
+                            <tr>
+                                <td value='$user' onclick=location.href=$url>$user</td>
+                            </tr>
+                            ";
+                        }
+                    } else {
+                        echo "<tr><td>No Players Found</tr></td>";
                     }
-                } else {
-                    echo "<tr><td>No Players Found</tr></td>";
-                }
-                ?>
-            </tbody>
-        </table>
+                    ?>
+                </tbody>
+            </table>
+        </div>
+        <div class="col-md-2" id="slottable" style="float: left;padding-left:90px;">
+            <table class="table table-hover" style="height:150px" id="summonerNames" multiple>
+                <thead>
+                    <th>Name</th>
+                    <th>Rank</th>
+                    <th>Role</th>
+                </thead>
+                <tbody>
+                    <?php tablePop();?>
+                </tbody>
+            </table>
+        </div>
+        <div class="col-md-2" id="slottable" style="float: left;padding-left:90px;">
+            <table class="table table-hover" style="height:150px" id="summonerNames" multiple>
+                <thead>
+                    <th>Name</th>
+                    <th>Rank</th>
+                    <th>Role</th>
+                </thead>
+                <tbody>
+                    <?php tablePop();?>
+                </tbody>
+            </table>
+        </div>
+        <div class="col-md-2" id="slottable" style="float: left;padding-left:90px;">
+            <table class="table table-hover" style="height:150px" id="summonerNames" multiple>
+                <thead>
+                    <th>Name</th>
+                    <th>Rank</th>
+                    <th>Role</th>
+                </thead>
+                <tbody>
+                    <?php tablePop();?>
+                </tbody>
+            </table>
+        </div>
+        <div class="col-md-2" id="slottable" style="float: left;padding-left:90px;">
+            <table class="table table-hover" style="height:150px" id="summonerNames" multiple>
+                <thead>
+                    <th>Name</th>
+                    <th>Rank</th>
+                    <th>Role</th>
+                </thead>
+                <tbody>
+                    <?php tablePop();?>
+                </tbody>
+            </table>
+        </div>
     </div>
 
-  </body>
+    </body>
 </html>
