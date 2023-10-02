@@ -7,10 +7,10 @@
 3. [Installation](#3-installation)
     a. [Installing PHP on Mac](#a-installing-php-on-mac)
     b. [Installing PHP on Windows](#b-installing-php-on-windows)
-4. Usage
-5. Support
-6. Contributing
-7. [License](#7-license)
+5. Usage
+6. Support
+7. Contributing
+8. [License](#7-license)
 
 ## 1. Introduction
 
