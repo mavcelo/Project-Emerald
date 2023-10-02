@@ -1,10 +1,13 @@
-<?php 
+<?php
+// Start a session to manage user authentication
 session_start();
 
+// Check if the user is not logged in, redirect to index.php if not logged in
 if(!isset($_SESSION['id'])) {
     header("Location: /index.php");
 }
 
+// Determine if the user is an admin or a guest
 if($_SESSION['isadmin'] == TRUE) {
     $guestoradmin = 'Admin';
 } else {
