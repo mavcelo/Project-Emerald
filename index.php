@@ -1,4 +1,9 @@
-<?php include('db_config.php');
+<?php 
+include('db_config.php');
+session_start();
+
+// broken, sets to 0 on refresh, not the intended affect, set to 0 to get rid of error for now
+$_SESSION['attempt'] = 0;
 ?>
 
 
@@ -9,7 +14,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title><?php echo $league_name?> Home</title>
+    <title>Home</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="./style.css">
     <link rel="icon" href="./favicon.ico" type="image/x-icon">
@@ -50,13 +55,14 @@ if(isset($_POST['submit'])) {
   $expire_stamp = date('Y-m-d H:i:s', strtotime("+5 min"));
 
   if ($result && password_verify($_POST['password'], $result['password']) && $_SESSION['attempt'] < 5) {
-      session_start();
+      
       session_regenerate_id();
       $id = session_id();
-      unset($_SESSION['attempt']);
+      
       $_SESSION['loggedin'] = TRUE;
       $_SESSION['username'] = strtolower($_POST['username']);
       $_SESSION['id'] = $id;
+
       if($_SESSION['username'] == 'admin') {
         $_SESSION['isadmin'] = TRUE;
       } else {
@@ -66,7 +72,10 @@ if(isset($_POST['submit'])) {
       exit();
   } else {
     if($_SESSION['attempt'] < 5) {
+      $_SESSION['attempt'] = $_SESSION['attempt'] + 1;
       echo "<div style='text-align:center;color:red;margin-top:20px;padding-right:60px;'>Incorrect username or password</div>";
+      // echo $_SESSION['attempt'];
+      
     } else
       echo "<div style='text-align:center;color:red;margin-top:20px;padding-right:60px;'>You have run out of attempts<br>please try again later.</div>";
       

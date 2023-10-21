@@ -6,6 +6,7 @@
     background-size: cover;
 }
 
+
 .login {
     background-image: url('img/login_bright_char_corners.jpg');
     background-repeat: no-repeat;
@@ -16,6 +17,7 @@
 
 #slottable {
     float: left;
+    color: #ff0707;
 }
 
 #card {

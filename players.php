@@ -13,10 +13,14 @@ if(!isset($_SESSION['id'])) {
 }
 
 // check if user is admin
-if($_SESSION['isadmin'] == TRUE) {
+if(isset($_SESSION['isadmin']) && $_SESSION['isadmin'] == TRUE) {
     $guestoradmin = 'Admin';
 } else {
     $guestoradmin = 'Guest';
+    
+    http_response_code(403);
+    die('<h2 style="color:red">Forbidden</h2>');   
+    
 }
 
 // Check if the user list array exists in the session, if not, create it

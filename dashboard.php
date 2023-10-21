@@ -1,6 +1,7 @@
 <?php
 // Start a session to manage user authentication
 session_start();
+unset($_SESSION['attempt']);
 
 // Check if the user is not logged in, redirect to index.php if not logged in
 if(!isset($_SESSION['id'])) {
