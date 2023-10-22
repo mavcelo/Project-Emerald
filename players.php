@@ -8,6 +8,10 @@ use PhpOffice\PhpSpreadsheet\IOFactory;
 
 session_start();
 
+function relax() {
+    ;
+}
+
 if(!isset($_SESSION['id'])) {
     header("Location: /index.php");
 }
@@ -58,78 +62,71 @@ if (isset($_POST['remove_selected'])) {
 }
 
 
+
+
+// Iterate through the rows
 if (isset($_FILES['user_file']) && $_FILES['user_file']['error'] === UPLOAD_ERR_OK) {
     // Get the uploaded file
     $file = $_FILES['user_file']['tmp_name'];
 
     // Load the spreadsheet using PhpSpreadsheet
-    $spreadsheet = IOFactory::load($file);
+    $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($file);
 
     // Get the first worksheet
     $worksheet = $spreadsheet->getActiveSheet();
 
-
     // Iterate through the rows
-    if (isset($_FILES['user_file']) && $_FILES['user_file']['error'] === UPLOAD_ERR_OK) {
-        // Get the uploaded file
-        $file = $_FILES['user_file']['tmp_name'];
-    
-        // Load the spreadsheet using PhpSpreadsheet
-        $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($file);
-    
-        // Get the first worksheet
-        $worksheet = $spreadsheet->getActiveSheet();
-    
-
-    
-        // Iterate through the rows
-        foreach ($worksheet->getRowIterator() as $row) {
-            // Get the values for name, rank, and role from the respective columns
-            $name = $worksheet->getCellByColumnAndRow(1, $row->getRowIndex())->getValue();
-            $rank = $worksheet->getCellByColumnAndRow(2, $row->getRowIndex())->getValue();
-            $role = $worksheet->getCellByColumnAndRow(3, $row->getRowIndex())->getValue();
-    
-            // Skip rows with empty name, rank, or role
-            if (!empty($name) && !empty($rank) && !empty($role)) {
-                // Insert data into the database using prepared statements
-                $sql = "INSERT INTO players (name, `rank`, role) VALUES (?, ?, ?)";
-                $stmt = $conn->prepare($sql);
-               
-                $nameValue = htmlspecialchars($name);
-                $rankValue = htmlspecialchars($rank);
-                $roleValue = htmlspecialchars($role);
-                
-                
-                if ($stmt) {
-                    $stmt->bind_param("sss", $nameValue, $rankValue, $roleValue);    
-                    if ($stmt->execute()) {
-                        break;
-                    } else {
-                        echo "Error executing SQL statement: " . $stmt->error;
-                    }
-                    $stmt->close();
-                } else {
-                    echo "Error preparing SQL statement: " . $conn->error;
-                }
-            }
-            $row->getCellIterator()->rewind();
-        }
-    
-        // Close the database connection
-        $conn->close();
-    }
-
-    // populate html table with users from 1st column    
     foreach ($worksheet->getRowIterator() as $row) {
-        $username = $worksheet->getCellByColumnAndRow(1, $row->getRowIndex())->getValue();
-    
-        // Check if the username is not empty and not already in the array
-        if (!empty($username) && !in_array($username, $_SESSION['user_list'])) {
-            $_SESSION['user_list'][] = htmlspecialchars($username);
-        }
-    }
+        // Get the values for name, rank, and role from the respective columns
+        $name = $worksheet->getCellByColumnAndRow(1, $row->getRowIndex())->getValue();
+        $rank = $worksheet->getCellByColumnAndRow(2, $row->getRowIndex())->getValue();
+        $role = $worksheet->getCellByColumnAndRow(3, $row->getRowIndex())->getValue();
 
+        // Skip rows with empty name, rank, or role
+        if (!empty($name) && !empty($rank) && !empty($role)) {
+            // Insert data into the database using prepared statements
+            $sql = "INSERT INTO players (name, `rank`, role) VALUES (?, ?, ?)";
+            $stmt = $conn->prepare($sql);
+            $nameValue = htmlspecialchars($name);
+            $rankValue = htmlspecialchars($rank);
+            $roleValue = htmlspecialchars($role);
+            
+            
+            if ($stmt) {
+                $stmt->bind_param("sss", $nameValue, $rankValue, $roleValue);   
+
+                if ($stmt->execute()) {
+                    relax();
+                } else {
+                    echo "Error executing SQL statement: " . $stmt->error;
+                }
+                $stmt->close();
+            } else {
+                echo "Error preparing SQL statement: " . $conn->error;
+            }
+        }
+        
+        
+    }
+    $result = $conn->query("SELECT name FROM players");
+
+    if ($result) {
+        $usernames = array();
+
+        // Fetch usernames and add them to the session array
+        while ($row = $result->fetch_assoc()) {
+            $usernames[] = $row['name'];
+        }
+
+        $_SESSION['user_list'] = $usernames;
+    } else {
+        echo "Error querying the database: " . $conn->error;
+    }
+    // Close the database connection
+    $conn->close();
 }
+    
+
 
 
 
