@@ -1,8 +1,12 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 
 // php spreadsheet library for speadsheet processing
 require 'vendor/autoload.php';
 include('./db_config.php');
+include('./requester.php');
 
 use PhpOffice\PhpSpreadsheet\IOFactory;
 
@@ -35,31 +39,85 @@ if (!isset($_SESSION['user_list'])) {
 // Check if the form is submitted to add a user
 if (isset($_POST['add_user'])) {
     // Get the user's name from the form, and sanitize
-    $newUser = htmlspecialchars(strip_tags($_POST['user_name']));
+    $username = htmlspecialchars(strip_tags($_POST['user_name']));
+    if (!$_POST['api_key'] == "Optional") {
+        $api_key = htmlspecialchars(strip_tags($_POST['api_key']));
+        $rank = getSummonerRank($username, $api_key);
+        if (strpos($rank, 'Error') === 0) {
+            $rank = htmlspecialchars(strip_tags("Need Verify"));
+        } else {
+            relax();
+        }
+    } else {
+        $rank = htmlspecialchars(strip_tags("Need Verify"));
+    }
+    if (strlen($_POST['role']) > 7) {
+        relax();
+    } else {
+        $role = htmlspecialchars(strip_tags($_POST['role']));
+    }
+    // Insert the new user into the database
+    $sql = "INSERT INTO players (name, `rank`, role) VALUES (?, ?, ?)";
+    $stmt = $conn->prepare($sql);
+
+    if ($stmt) {
+        $stmt->bind_param("sss", $username, $rank, $role);
+
+        try {
+            $stmt->execute();
+            $_SESSION['user_list'][] = $username;
+
+        } catch (Exception $e) {
+            echo "<span style='color:red'>Character Length too long</span>";
+        }
+        
+        $stmt->close();
+    } else {
+        echo "Error preparing SQL statement: " . $conn->error;
+    }
+
+    // Close the database connection
+    $conn->close();
 
     // Add the new user to the session array
-    $_SESSION['user_list'][] = $newUser;
 }
+
 
 // Check if the form is submitted to remove selected users
 if (isset($_POST['remove_selected'])) {
     // Get the selected users to remove
     if (isset($_POST['selected_users'])) {
         $selectedUsers = $_POST['selected_users'];
+
         foreach ($selectedUsers as $user) {
-            $index = array_search(htmlspecialchars(strip_tags($user)), $_SESSION['user_list']);
+            $userToRemove = htmlspecialchars(strip_tags($user));
+            
+            // Remove the user from the session array
+            $index = array_search($userToRemove, $_SESSION['user_list']);
             if ($index !== false) {
                 unset($_SESSION['user_list'][$index]);
+                // Reset array keys to ensure it's sequential
+                $_SESSION['user_list'] = array_values($_SESSION['user_list']);
             }
+            
+            // Remove the user from the database
+            $stmt = $conn->prepare("DELETE FROM players WHERE name = ?");
+            $stmt->bind_param("s", $userToRemove);
+            
+            if ($stmt->execute()) {
+                // User removed from the database
+                relax();
+            } else {
+                echo "Error removing user from the database: " . $stmt->error;
+            }
+            
+            $stmt->close();
         }
+
+        // Close the database connection
     }
-
-    // Loop through the selected users and remove them
-        
-
-    // Reset array keys to ensure it's sequential
-    $_SESSION['user_list'] = array_values($_SESSION['user_list']);
 }
+
 
 
 
@@ -164,20 +222,24 @@ if (isset($_FILES['user_file']) && $_FILES['user_file']['error'] === UPLOAD_ERR_
         </div>
     </nav>
 
-    <div class="ms-4 mt-3 w3-border w3-round ws-grey col-md-4" id="users">
+    <div class="container align-items-center justify-content-center col-md-4" id="users">
         <h5>Add and Remove Users</h5>
 
         <form method="post">
+            <label for="api_key">Enter RIOT API key (or verify rank manually):</label>
+            <input type="text" id="api_key" name="api_key" value="Optional">
             <label for="user_name">Enter User Name:</label>
-            <input type="text" id="user_name" name="user_name" required>
+            <input type="text" id="user_name" name="user_name" required><br>
+            <label for="role">Enter Preferred Role:</label>
+            <input type="text" id="role" name="role" required>
             <input type="submit" name="add_user" value="Add User">
         </form>
     </div><br>
     
-    <div class="ms-4 mt-3 w3-border w3-round ws-grey col-md-4" id="usernames">
+    <div class="container col-md-4" id="usernames">
         <form method="post" enctype="multipart/form-data">
             <label>User List:</label>
-            <select class="col-md-3 form-select" style="height:150px" name="selected_users[]" multiple>
+            <select class="col-md-3 form-select" style="height:500px;width:400px;" name="selected_users[]" multiple>
                 <?php
                 // Display the added users from the session array
                 foreach ($_SESSION['user_list'] as $user) {
