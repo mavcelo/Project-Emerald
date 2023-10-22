@@ -1,5 +1,9 @@
 <?php
 session_start();
+include('./db_config.php');
+
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
 if(!isset($_SESSION['id'])) {
     header("Location: /index.php");
@@ -113,100 +117,79 @@ player list. IF not possible, add the players to play in other area on dashboard
     </script>
 
 
-<?php 
-// Loops through the session array of users to securely get the users from the players page entry 
-function tablePop() {
-    if (isset($_SESSION['user_list'][0])) {
-    foreach ($_SESSION['user_list'] as $user) {
-        $url = "'https://www.op.gg/summoners/na/".urlencode($user)."'";
-        echo "
-        <tr>
-            <td value='$user' onclick=location.href=$url>$user</td>
-        </tr>
-        ";
-    }
-    } else {
-        echo "<tr><td>No Players Found</tr></td>";
-    }
-}
+        <?php
 
-?>
+        // Function to populate the div with data for a specific role
+        function populateRoleDiv($conn, $role) {
+            // Retrieve data from the database for the specified role
+            $sql = "SELECT name, `rank`, role FROM players WHERE role = ?";
+            $stmt = mysqli_prepare($conn, $sql);
+            mysqli_stmt_bind_param($stmt, "s", $role);
+            mysqli_stmt_execute($stmt);
+            $result = mysqli_stmt_get_result($stmt);
 
+            if (mysqli_num_rows($result) > 0) {
+                echo "<div class='col-md-2 pr-2 role-div'>";
+                echo "<div class='table-container'>";
+                echo "<table class='table table-hover' id='table-$role'>";
+                echo "<thead>
+                        <th>Name</th>
+                        <th>Rank</th>
+                        <th>Role</th>
+                      </thead>";
+                echo "<tbody>";
+        
 
-            <div class="col-md-2 pr-2 float-left" id="slottable" style="margin-top: 250px;margin-left:120px;padding-left:10px">
-                <table class="table table-hover pr-2" style="height:150px" id="summonerNames" multiple>
-                    <thead>
-                        <th>Name</th>
-                        <th>Rank</th>
-                        <th>Role</th>
-                    </thead>
-                    <tbody>
-                    <?php 
-                        // Loops through the session array of users to securely get the users from the players page entry 
-                        if (isset($_SESSION['user_list'][0])) {
-                            foreach ($_SESSION['user_list'] as $user) {
-                                $url = "'https://www.op.gg/summoners/na/".urlencode($user)."'";
-                                echo "
-                                <tr>
-                                    <td value='$user' onclick=location.href=$url>$user</td>
-                                </tr>
-                                ";
-                            }
-                        } else {
-                            echo "<tr><td>No Players Found</tr></td>";
-                        }
-                        ?>
-                    </tbody>
-                </table>
-            </div>
-            <div class="col-md-2 pr-2 float-left pl-10" id="slottable" style="margin-top: 250px;padding-left:10px">
-                <table class="table table-hover" style="height:150px;padding-right:30px;" id="summonerNames" multiple>
-                    <thead>
-                        <th>Name</th>
-                        <th>Rank</th>
-                        <th>Role</th>
-                    </thead>
-                    <tbody>
-                        <?php tablePop();?>
-                    </tbody>
-                </table>
-            </div>
-            <div class="col-md-2 pr-2 float-left pl-10" id="slottable" style="margin-top: 250px;padding-left:10px">
-                <table class="table table-hover" style="height:150px" id="summonerNames" multiple>
-                    <thead>
-                        <th>Name</th>
-                        <th>Rank</th>
-                        <th>Role</th>
-                    </thead>
-                    <tbody>
-                        <?php tablePop();?>
-                    </tbody>
-                </table>
-            </div>
-            <div class="col-md-2 mr-2 float-left pl-10" id="slottable"style="margin-top: 250px;padding-left:10px">
-                <table class="table table-hover" style="height:150px" id="summonerNames" multiple>
-                    <thead>
-                        <th>Name</th>
-                        <th>Rank</th>
-                        <th>Role</th>
-                    </thead>
-                    <tbody>
-                        <?php tablePop();?>
-                    </tbody>
-                </table>
-            </div>
-            <div class="col-md-2 mr-2 float-left pl-10" id="slottable" style="margin-top: 250px;padding-left:10px">
-                <table class="table table-hover" style="height:150px" id="summonerNames" multiple>
-                    <thead>
-                        <th>Name</th>
-                        <th>Rank</th>
-                        <th>Role</th>
-                    </thead>
-                    <tbody>
-                        <?php tablePop();?>
-                    </tbody>
-                </table>
-            </div>
+                while ($row = mysqli_fetch_assoc($result)) {
+                    echo "<tr>";
+                    $user = $row["name"];
+                    $url = "'https://www.op.gg/summoners/na/".urlencode($user)."'";
+                    echo "
+                        <td value='$user' onclick=location.href=$url>$user</td>
+                    ";
+                    echo "<td>" . $row["rank"] . "</td>";
+                    echo "<td>" . $row["role"] . "</td>";
+                    echo "</tr>";
+                }
 
+                echo "</tbody>";
+                echo "</table>";
+                echo "</div>";
+                echo "</div>";
+            } else {
+                echo "<div class='col-md-2 pr-2 role-div'>";
+                echo "<div class='table-container'><table><thead><th>No data found for $role</th></thead></table></div>";
+                echo "</div>";
+            }
+        }
+        ?>
+
+        <!-- Example usage for each role -->
+        <br><br><br><br><br><div class="container-fluid d-flex justify-content-between align-items-end">
+            <?php
+            $roles = array("top", "jungle", "mid", "bottom", "support");
+            foreach ($roles as $role) {
+                populateRoleDiv($conn, $role); // Call the function to populate the div for each role
+            }
+            ?>
+        </div>
+
+        <style>
+            .role-div {
+                display: flex;
+                top: 5px;
+                flex-direction: column;
+            }
+
+            .table-container {
+                position: absolute;
+                top: 500px;
+                flex-grow: 1;
+                overflow-y: auto;
+            }
+
+            /* Set a max-height for the table containers if needed */
+
+        </style>
     </body>
 </html>
