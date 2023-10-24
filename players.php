@@ -40,16 +40,18 @@ if (!isset($_SESSION['user_list'])) {
 if (isset($_POST['add_user'])) {
     // Get the user's name from the form, and sanitize
     $username = htmlspecialchars(strip_tags($_POST['user_name']));
-    if (!$_POST['api_key'] == "Optional") {
+    if ($_POST['api_key'] == "Optional") {
+        $rank = htmlspecialchars(strip_tags("Need Verify"));
+    } else {
         $api_key = htmlspecialchars(strip_tags($_POST['api_key']));
         $rank = getSummonerRank($username, $api_key);
         if (strpos($rank, 'Error') === 0) {
             $rank = htmlspecialchars(strip_tags("Need Verify"));
+        } elseif (strpos($rank, 'fetching') === 0){
+            echo "no games played";
         } else {
             relax();
         }
-    } else {
-        $rank = htmlspecialchars(strip_tags("Need Verify"));
     }
     if (strlen($_POST['role']) > 7) {
         relax();
@@ -136,9 +138,9 @@ if (isset($_FILES['user_file']) && $_FILES['user_file']['error'] === UPLOAD_ERR_
     // Iterate through the rows
     foreach ($worksheet->getRowIterator() as $row) {
         // Get the values for name, rank, and role from the respective columns
-        $name = $worksheet->getCellByColumnAndRow(1, $row->getRowIndex())->getValue();
-        $rank = $worksheet->getCellByColumnAndRow(2, $row->getRowIndex())->getValue();
-        $role = $worksheet->getCellByColumnAndRow(3, $row->getRowIndex())->getValue();
+        $name = $worksheet->getCell(1, $row->getRowIndex())->getValue();
+        $rank = $worksheet->getCell(2, $row->getRowIndex())->getValue();
+        $role = $worksheet->getCell(3, $row->getRowIndex())->getValue();
 
         // Skip rows with empty name, rank, or role
         if (!empty($name) && !empty($rank) && !empty($role)) {
