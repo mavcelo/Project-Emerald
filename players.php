@@ -16,6 +16,11 @@ function relax() {
     ;
 }
 
+function useRegex($input) {
+    $regex = '/([A-Za-z0-9]+( [A-Za-z0-9]+)+)/i';
+    return preg_match($regex, $input);
+}
+
 if(!isset($_SESSION['id'])) {
     header("Location: /index.php");
 }
@@ -122,53 +127,90 @@ if (isset($_POST['remove_selected'])) {
 
 
 
-
-// Iterate through the rows
+// iterate through the rows
 if (isset($_FILES['user_file']) && $_FILES['user_file']['error'] === UPLOAD_ERR_OK) {
-    // Get the uploaded file
-    $file = $_FILES['user_file']['tmp_name'];
+    try {
+        // Get the uploaded file
+        $file = $_FILES['user_file']['tmp_name'];
 
-    // Load the spreadsheet using PhpSpreadsheet
-    $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($file);
+        // Load the spreadsheet using PhpSpreadsheet
+        $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($file);
 
-    // Get the first worksheet
-    $worksheet = $spreadsheet->getActiveSheet();
+        // Get the first worksheet
+        $worksheet = $spreadsheet->getActiveSheet();
 
-    // Iterate through the rows
-    foreach ($worksheet->getRowIterator() as $row) {
-        // Get the values for name, rank, and role from the respective columns
-        $name = $worksheet->getCellByColumnAndRow(1, $row->getRowIndex())->getValue();
-        $rank = $worksheet->getCellByColumnAndRow(2, $row->getRowIndex())->getValue();
-        $role = $worksheet->getCellByColumnAndRow(3, $row->getRowIndex())->getValue();
+        $isheader = 0;
+        // Iterate through the rows
+        foreach ($worksheet->getRowIterator() as $row) {
+            if ($isheader > 0) {
+                // Get the values for name, rank, and role from the respective columns
+                $sheettimestamp = $worksheet->getCellByColumnAndRow(1, $row->getRowIndex())->getValue();
+                $name = $worksheet->getCellByColumnAndRow(6, $row->getRowIndex())->getValue();
+                $rank = $worksheet->getCellByColumnAndRow(7, $row->getRowIndex())->getValue();
+                $role = $worksheet->getCellByColumnAndRow(9, $row->getRowIndex())->getValue();
 
-        // Skip rows with empty name, rank, or role
-        if (!empty($name) && !empty($rank) && !empty($role)) {
-            // Insert data into the database using prepared statements
-            $sql = "INSERT INTO players (name, `rank`, role) VALUES (?, ?, ?)";
-            $stmt = $conn->prepare($sql);
-            $nameValue = htmlspecialchars($name);
-            $rankValue = htmlspecialchars($rank);
-            $roleValue = htmlspecialchars($role);
-            
-            
-            if ($stmt) {
-                $stmt->bind_param("sss", $nameValue, $rankValue, $roleValue);   
-
-                if ($stmt->execute()) {
-                    relax();
+                $unixTimestamp = ($sheettimestamp - 25569) * 86400;
+                $dateTime = DateTime::createFromFormat('U.u', $unixTimestamp);
+                if ($dateTime !== false) {
+                    // Format the DateTime as a human-readable date and time
+                    $timestamp = $dateTime->format('n/j/Y H:i:s');
                 } else {
-                    echo "Error executing SQL statement: " . $stmt->error;
+                    relax();
                 }
-                $stmt->close();
+
+                if (is_null($rank) || strlen($rank) > 11) {
+                    $rank = "Need Verify"; // No need to use htmlspecialchars here
+                }
+
+                // Skip rows with empty name, rank, or role
+                if (!empty($name) && !empty($rank) && !empty($role)) {
+                    // Check if the user already exists in the database
+                    $checkQuery = "SELECT name FROM players WHERE name = ?";
+                    $checkStmt = $conn->prepare($checkQuery);
+                    $checkStmt->bind_param("s", $name);
+                    $checkStmt->execute();
+                    $checkStmt->store_result();
+
+                    if ($checkStmt->num_rows == 0) {
+
+                        // Insert data into the database using prepared statements
+                        $sql = "INSERT INTO players (name, `rank`, role, time_registered) VALUES (?, ?, ?, ?)";
+                        $stmt = $conn->prepare($sql);
+                        $nameValue = htmlspecialchars($name);
+                        $rankValue = htmlspecialchars($rank);
+                        $roleValue = htmlspecialchars($role);
+
+                        if ($stmt) {
+                            $stmt->bind_param("ssss", $nameValue, $rankValue, $roleValue, $timestamp);   
+
+                            if ($stmt->execute()) {
+                                relax();
+                            } else {
+                                // Log the error to a file or database
+                                error_log("Error executing SQL statement: " . $stmt->error);
+                            }
+                            $stmt->close();
+                        } else {
+                            error_log("Error preparing SQL statement: " . $conn->error);
+                        }
+                    } else {
+                        relax();
+                    }
+
+                    $checkStmt->close();
+                }
             } else {
-                echo "Error preparing SQL statement: " . $conn->error;
+                $isheader = 1;
             }
         }
-        
-        
+    } catch (Exception $e) {
+        // Log the exception to a file or database
+        error_log("An error occurred: " . $e->getMessage());
+        echo "An error occurred while processing the file. Please try again later.";
     }
-    
 }
+
+
     
 
 
