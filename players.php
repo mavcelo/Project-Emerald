@@ -144,12 +144,18 @@ if (isset($_FILES['user_file']) && $_FILES['user_file']['error'] === UPLOAD_ERR_
         foreach ($worksheet->getRowIterator() as $row) {
             if ($isheader > 0) {
                 // Get the values for name, rank, and role from the respective columns
-                $sheettimestamp = $worksheet->getCellByColumnAndRow(1, $row->getRowIndex())->getValue();
-                $name = $worksheet->getCellByColumnAndRow(6, $row->getRowIndex())->getValue();
+                $sheetTimestamp = $worksheet->getCellByColumnAndRow(1, $row->getRowIndex())->getValue();
+                $readTerms = $worksheet->getCellByColumnAndRow(2, $row->getRowIndex())->getValue();
+                $agreeToTerms = $worksheet->getCellByColumnAndRow(3, $row->getRowIndex())->getValue();
+                $discordName = $worksheet->getCellByColumnAndRow(4, $row->getRowIndex())->getValue();
+                $teamCaptain = $worksheet->getCellByColumnAndRow(5, $row->getRowIndex())->getValue();                
+                $ign = $worksheet->getCellByColumnAndRow(6, $row->getRowIndex())->getValue();
                 $rank = $worksheet->getCellByColumnAndRow(7, $row->getRowIndex())->getValue();
-                $role = $worksheet->getCellByColumnAndRow(9, $row->getRowIndex())->getValue();
+                $rankPrev = $worksheet->getCellByColumnAndRow(8, $row->getRowIndex())->getValue();
+                $rolePref = $worksheet->getCellByColumnAndRow(9, $row->getRowIndex())->getValue();
+                $roleSec = $worksheet->getCellByColumnAndRow(2, $row->getRowIndex())->getValue();
 
-                $unixTimestamp = ($sheettimestamp - 25569) * 86400;
+                $unixTimestamp = ($sheetTimestamp - 25569) * 86400;
                 $dateTime = DateTime::createFromFormat('U.u', $unixTimestamp);
                 if ($dateTime !== false) {
                     // Format the DateTime as a human-readable date and time
@@ -162,23 +168,23 @@ if (isset($_FILES['user_file']) && $_FILES['user_file']['error'] === UPLOAD_ERR_
                     $rank = "Need Verify"; // No need to use htmlspecialchars here
                 }
 
-                // Skip rows with empty name, rank, or role
-                if (!empty($name) && !empty($rank) && !empty($role)) {
+                // Skip rows with empty ign, rank, or role
+                if (!empty($ign) && !empty($rank) && !empty($rolePref)) {
                     // Check if the user already exists in the database
                     $checkQuery = "SELECT name FROM players WHERE name = ?";
                     $checkStmt = $conn->prepare($checkQuery);
-                    $checkStmt->bind_param("s", $name);
+                    $checkStmt->bind_param("s", $ign);
                     $checkStmt->execute();
                     $checkStmt->store_result();
 
                     if ($checkStmt->num_rows == 0) {
 
                         // Insert data into the database using prepared statements
-                        $sql = "INSERT INTO players (name, `rank`, role, time_registered) VALUES (?, ?, ?, ?)";
+                        $sql = "INSERT INTO players (name, `rank`, role_preferred, time_registered) VALUES (?, ?, ?, ?)";
                         $stmt = $conn->prepare($sql);
-                        $nameValue = htmlspecialchars($name);
+                        $nameValue = htmlspecialchars($ign);
                         $rankValue = htmlspecialchars($rank);
-                        $roleValue = htmlspecialchars($role);
+                        $roleValue = htmlspecialchars($rolePref);
 
                         if ($stmt) {
                             $stmt->bind_param("ssss", $nameValue, $rankValue, $roleValue, $timestamp);   
@@ -207,6 +213,7 @@ if (isset($_FILES['user_file']) && $_FILES['user_file']['error'] === UPLOAD_ERR_
         // Log the exception to a file or database
         error_log("An error occurred: " . $e->getMessage());
         echo "An error occurred while processing the file. Please try again later.";
+        echo $e;
     }
 }
 
