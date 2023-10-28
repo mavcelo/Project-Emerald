@@ -167,22 +167,7 @@ if (isset($_FILES['user_file']) && $_FILES['user_file']['error'] === UPLOAD_ERR_
         
         
     }
-    $result = $conn->query("SELECT name FROM players");
-
-    if ($result) {
-        $usernames = array();
-
-        // Fetch usernames and add them to the session array
-        while ($row = $result->fetch_assoc()) {
-            $usernames[] = $row['name'];
-        }
-
-        $_SESSION['user_list'] = $usernames;
-    } else {
-        echo "Error querying the database: " . $conn->error;
-    }
-    // Close the database connection
-    $conn->close();
+    
 }
     
 
@@ -284,10 +269,26 @@ if (isset($_FILES['user_file']) && $_FILES['user_file']['error'] === UPLOAD_ERR_
                     <label>User List:</label>
                     <select class="form-select" style="height:200px;" name="selected_users[]" multiple>
                         <?php
-                        // Display the added users from the session array
-                        foreach ($_SESSION['user_list'] as $user) {
-                            echo "<option value='$user'>$user</option>";
-                        }
+                            $result = $conn->query("SELECT name FROM players");
+
+                            if ($result) {
+                                $usernames = array();
+                        
+                                // Fetch usernames and add them to the session array
+                                while ($row = $result->fetch_assoc()) {
+                                    $usernames[] = $row['name'];
+                                }
+                        
+                                $_SESSION['user_list'] = $usernames;
+                            } else {
+                                echo "Error querying the database: " . $conn->error;
+                            }
+                            // Close the database connection
+                            $conn->close();
+                            // Display the added users from the session array
+                            foreach ($_SESSION['user_list'] as $user) {
+                                echo "<option value='$user'>$user</option>";
+                            }
                         ?>
                     </select>
                     <button type="submit" name="remove_selected" class="btn btn-danger mt-3">Remove Selected Users</button>
