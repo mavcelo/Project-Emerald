@@ -137,9 +137,9 @@ if (isset($_FILES['user_file']) && $_FILES['user_file']['error'] === UPLOAD_ERR_
     // Iterate through the rows
     foreach ($worksheet->getRowIterator() as $row) {
         // Get the values for name, rank, and role from the respective columns
-        $name = $worksheet->getCell(1, $row->getRowIndex())->getValue();
-        $rank = $worksheet->getCell(2, $row->getRowIndex())->getValue();
-        $role = $worksheet->getCell(3, $row->getRowIndex())->getValue();
+        $name = $worksheet->getCellByColumnAndRow(1, $row->getRowIndex())->getValue();
+        $rank = $worksheet->getCellByColumnAndRow(2, $row->getRowIndex())->getValue();
+        $role = $worksheet->getCellByColumnAndRow(3, $row->getRowIndex())->getValue();
 
         // Skip rows with empty name, rank, or role
         if (!empty($name) && !empty($rank) && !empty($role)) {
