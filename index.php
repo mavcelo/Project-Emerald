@@ -2,6 +2,7 @@
 include('db_config.php');
 session_start();
 
+
 // broken, sets to 0 on refresh, not the intended affect, set to 0 to get rid of error for now
 $_SESSION['attempt'] = 0;
 ?>

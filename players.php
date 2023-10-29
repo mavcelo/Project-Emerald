@@ -33,9 +33,55 @@ function relax() {
     ;
 }
 
+function verifyRank($rankParam, $ignParam) {
+    $actualRank = "Need Verify";
+
+    if (strlen($rankParam) < 12) {
+        if (isset($_POST['api_key'])) {
+            if ($_POST['api_key'] == "Optional") {
+                // add code to verify if rank is correct. leave as user input for now
+                $actualRank = $rankParam;
+            } else {
+                $api_key = htmlspecialchars(strip_tags($_POST['api_key']));
+                $verifiedRank = getSummonerRank($ignParam, $api_key);
+                if (strpos($verifiedRank, 'Error') !== True) {
+                    // error was found
+                    $actualRank = $rankParam;
+                } else {
+                    // Error, was not found in string, therfore, success
+                    $actualRank = $rankParam;
+                    
+                }
+            }
+        }
+    }
+    return $actualRank;
+}
+
+function processRank($rankParam) {
+    if (!is_null($rankParam)) {
+        return useRegex($rankParam);
+    } else {
+        return "Need Verify";
+    }
+}
+
 function useRegex($input) {
-    $regex = '/([A-Za-z0-9]+( [A-Za-z0-9]+)+)/i';
-    return preg_match($regex, $input);
+    $regex = '/([a-z][1-5]{1})|([A-Za-z0-9]+( [A-Za-z0-9]{1,2}){1})/i';
+
+    if (preg_match($regex, $input, $matches) != 1) {
+        $matches[0] = "Need Verify";
+    }
+    return $matches[0];
+}
+
+function isUserInDatabase($conn, $username) {
+    $sql = "SELECT name FROM players WHERE name = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $username);
+    $stmt->execute();
+    $stmt->store_result();
+    return $stmt->num_rows > 0;
 }
 
 function addNewUser($conn, $formData) {
@@ -106,158 +152,115 @@ function removeSelectedUsers($conn, $selectedUsers) {
 }
 
 function processFileUpload($conn, $formData, $file) {
-    echo $_POST['api_key'];
+    $file = $_FILES['user_file']['tmp_name'];
+
+    // Load the spreadsheet using PhpSpreadsheet
+    $reader = \PhpOffice\PhpSpreadsheet\IOFactory::createReader('Xlsx');    
+    $reader->setReadDataOnly(true); // Set this property
+    $spreadsheet = $reader->load($file);
+
+    $isheader = 0;
+    
+    $chunkSize = 100; // Define your desired chunk size
+    $rowCounter = 0;
+
+    // Initialize the $worksheet outside the loop
+    $worksheet = $spreadsheet->getActiveSheet();
+
     try {
         // Get the uploaded file
-        $file = $_FILES['user_file']['tmp_name'];
 
-        // Load the spreadsheet using PhpSpreadsheet
-        $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($file);
-
-        // Get the first worksheet
-        $worksheet = $spreadsheet->getActiveSheet();
-
-        $isheader = 0;
-
-        // Prepare the SQL statement for inserting data into the database
+        // Prepare the SQL statement outside the loop
         $insertQuery = "INSERT INTO players (time_registered, read_terms, agree_to_terms, discord_name, team_captain, name, `rank`, rank_previous, role_preferred, role_alternative) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         $insertStmt = $conn->prepare($insertQuery);
-        if ($_POST['api_key'] == 'Optional') {
-            echo '<span style="color:orange">An uploaded rank was unable to be set. API key not found for auto-correction</span>';
-        }
+        $insertStmt->bind_param("ssssssssss", $timestamp, $readTerms, $agreeToTerms, $discordName, $teamCaptain, $ign, $rank, $rankPrev, $rolePref, $roleAlt);
 
-        if (!$insertStmt) {
-            error_log("Error preparing SQL statement: " . $conn->error);
-        } else {
+        $insertedUsers = [];
+        // Iterate through the rows
+        foreach ($worksheet->getRowIterator() as $row) {
+            if ($isheader > 0) {
+                            
+                
+                // Get the values for each column
+                $sheetTimestamp = $worksheet->getCellByColumnAndRow(1, $row->getRowIndex())->getValue();
+                $readTerms = $worksheet->getCellByColumnAndRow(2, $row->getRowIndex())->getValue();
+                $agreeToTerms = $worksheet->getCellByColumnAndRow(3, $row->getRowIndex())->getValue();
+                $discordName = $worksheet->getCellByColumnAndRow(4, $row->getRowIndex())->getValue();
+                $teamCaptain = $worksheet->getCellByColumnAndRow(5, $row->getRowIndex())->getValue();
+                $ign = $worksheet->getCellByColumnAndRow(6, $row->getRowIndex())->getValue();
+                $rank = $worksheet->getCellByColumnAndRow(7, $row->getRowIndex())->getValue();
+                $rankPrev = $worksheet->getCellByColumnAndRow(8, $row->getRowIndex())->getValue();
+                $rolePref = $worksheet->getCellByColumnAndRow(9, $row->getRowIndex())->getValue();
+                $roleAlt = $worksheet->getCellByColumnAndRow(10, $row->getRowIndex())->getValue();
+    //echo $rank;
+                // Check for null values before using htmlspecialchars
+                $readTerms = ($readTerms !== null) ? htmlspecialchars($readTerms) : null;
+                $agreeToTerms = ($agreeToTerms !== null) ? htmlspecialchars($agreeToTerms) : null;
+                $discordName = ($discordName !== null) ? htmlspecialchars($discordName) : null;
+                $teamCaptain = ($teamCaptain !== null) ? htmlspecialchars($teamCaptain) : null;
+                $ign = ($ign !== null) ? htmlspecialchars($ign) : null;
+                $rank = ($rank !== null) ? htmlspecialchars($rank) : null;
+                $rankPrev = ($rankPrev !== null) ? htmlspecialchars($rankPrev) : null;
+                $rolePref = ($rolePref !== null) ? htmlspecialchars($rolePref) : null;
+                $roleAlt = ($roleAlt !== null) ? htmlspecialchars($roleAlt) : null;
 
-            $insertStmt->bind_param("ssssssssss", $timestamp, $readTerms, $agreeToTerms, $discordName, $teamCaptain, $ign, $rank, $rankPrev, $rolePref, $roleAlt);
-            
-            // Iterate through the rows
-            foreach ($worksheet->getRowIterator() as $row) {
-                if ($isheader > 0) {
-                    // Get the values for each column
-                    $sheetTimestamp = $worksheet->getCellByColumnAndRow(1, $row->getRowIndex())->getValue();
-                    $readTerms = $worksheet->getCellByColumnAndRow(2, $row->getRowIndex())->getValue();
-                    $agreeToTerms = $worksheet->getCellByColumnAndRow(3, $row->getRowIndex())->getValue();
-                    $discordName = $worksheet->getCellByColumnAndRow(4, $row->getRowIndex())->getValue();
-                    $teamCaptain = $worksheet->getCellByColumnAndRow(5, $row->getRowIndex())->getValue();
-                    $ign = $worksheet->getCellByColumnAndRow(6, $row->getRowIndex())->getValue();
-                    $rank = $worksheet->getCellByColumnAndRow(7, $row->getRowIndex())->getValue();
-                    $rankPrev = $worksheet->getCellByColumnAndRow(8, $row->getRowIndex())->getValue();
-                    $rolePref = $worksheet->getCellByColumnAndRow(9, $row->getRowIndex())->getValue();
-                    $roleAlt = $worksheet->getCellByColumnAndRow(10, $row->getRowIndex())->getValue();
+                
+                $rank = processRank($rank);
+                $rankPrev = processRank($rankPrev);
 
-                    // Check for null values before using htmlspecialchars
-                    $readTerms = ($readTerms !== null) ? htmlspecialchars($readTerms) : null;
-                    $agreeToTerms = ($agreeToTerms !== null) ? htmlspecialchars($agreeToTerms) : null;
-                    $discordName = ($discordName !== null) ? htmlspecialchars($discordName) : null;
-                    $teamCaptain = ($teamCaptain !== null) ? htmlspecialchars($teamCaptain) : null;
-                    $ign = ($ign !== null) ? htmlspecialchars($ign) : null;
-                    $rank = ($rank !== null && !is_null($rank) && strlen($rank) <= 11) ? htmlspecialchars($rank) : "Need Verify";
-                    $rankPrev = ($rankPrev !== null) ? htmlspecialchars($rankPrev) : null;
-                    $rolePref = ($rolePref !== null) ? htmlspecialchars($rolePref) : null;
-                    $roleAlt = ($roleAlt !== null) ? htmlspecialchars($roleAlt) : null;
-
-                    if (!is_null($rank)) {
-                        $rank = useRegex($rank);
-                    } else {
-                        $rank = "Need Verify";
-                    }
-                    
-                    if (!is_null($rankPrev)) {
-                        $rankPrev = useRegex($rankPrev);
-                    } else {
-                        $rankPrev = "Need Verify";
-                    }
-
-                    if ($rank > 30 && !is_null($rank)) {
-                        if (isset($_POST['api_key'])) {
-                            if ($_POST['api_key'] == "Optional") {
-                                // add code to verify if rank is correct. leave as user inputted for
-                                relax();
-                            } else {
-                                $api_key = htmlspecialchars(strip_tags($_POST['api_key']));
-                                $rank = getSummonerRank($ign, $api_key);
-                                if (strpos($rank, 'Error') === 0) {
-                                    $rank = "Need Verify";
-                                } elseif (strpos($rank, 'fetching') === 0){
-                                    $rank = "Need Verify";
-                                } else {
-                                    relax();
-                                }
-                            }
-                        }
-
-                        $rank = "Need Verify";
-                    } else {
-                        $rank = "Need Verify";
-                    }
-
-                    if ($rankPrev > 30 && !is_null($rankPrev)) {
-                        if (isset($_POST['api_key'])) {
-                            if ($_POST['api_key'] == "Optional") {
-                                $rankPrev = "Need Verify";
-                            } else {
-                                $api_key = htmlspecialchars(strip_tags($_POST['api_key']));
-                                $rankPrev = getSummonerRank($ign, $api_key);
-                                if (strpos($rankPrev, 'Error') === 0) {
-                                    $rankPrev = "Need Verify";
-                                } elseif (strpos($rankPrev, 'fetching') === 0){
-                                    echo "no games played";
-                                    $rankPrev = "Need Verify";
-                                } else {
-                                    relax();
-                                }
-                            }
-                        }
-
-                        $rankPrev = "Need Verify";
-                    } else {
-                        $rankPrev = "Need Verify";
-                    }
-
-                    // Process the timestamp
-                    $unixTimestamp = ($sheetTimestamp - 25569) * 86400;
-                    $dateTime = DateTime::createFromFormat('U.u', $unixTimestamp);
-                    if ($dateTime !== false) {
-                        // Format the DateTime as a human-readable date and time
-                        $timestamp = $dateTime->format('n/j/Y H:i:s');
-                    } else {
-                        relax();
-                    }
-
-                    // Skip rows with empty ign, rank, or role
-                    if (!empty($ign) && !empty($rank) && !empty($rolePref)) {
-                        // Check if the user already exists in the database
-                        $checkQuery = "SELECT name FROM players WHERE name = ?";
-                        $checkStmt = $conn->prepare($checkQuery);
-                        $checkStmt->bind_param("s", $ign);
-                        $checkStmt->execute();
-                        $checkStmt->store_result();
-
-                        if ($checkStmt->num_rows == 0) {
-                            // Execute the insert statement
-                            if ($insertStmt->execute()) {
-                                relax();
-                            } else {
-                                error_log("Error executing SQL statement: " . $insertStmt->error);
-                            }
-                        } else {
-                            relax();
-                        }
-
-                        $checkStmt->close();
-                    }
-                    
+                // Process the timestamp
+                $unixTimestamp = ($sheetTimestamp - 25569) * 86400;
+                $dateTime = DateTime::createFromFormat('U.u', $unixTimestamp);
+                if ($dateTime !== false) {
+                    // Format the DateTime as a human-readable date and time
+                    $timestamp = $dateTime->format('n/j/Y H:i:s');
                 } else {
-                    $isheader = 1;
-                    
+                    relax();
                 }
+                if (isUserInDatabase($conn, $ign)) {
+                    // User already exists, skip this user
+                    continue;
+                } elseif (!empty($ign) && !empty($rank) && !empty($rolePref) && !in_array($ign, $insertedUsers)) {
+                    if ($insertStmt->execute()) {
+                        $insertedUsers[] = $ign;
+                         // Clear PHPExcel objects and unset variables every chunkSize rows
+                        $rowCounter++;
+                        if ($rowCounter % $chunkSize === 0) {
+                            // Close the insert statement
+                            $insertStmt->close();
+
+                            // Clear PHPExcel objects
+                            $spreadsheet->disconnectWorksheets();
+                            unset($spreadsheet);
+
+                            // Reconnect the worksheet to release memory
+                            $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($file);
+                            $worksheet = $spreadsheet->getActiveSheet();
+
+                            // Prepare a new insert statement
+                            $insertStmt = $conn->prepare($insertQuery);
+                            $insertStmt->bind_param("ssssssssss", $timestamp, $readTerms, $agreeToTerms, $discordName, $teamCaptain, $ign, $rank, $rankPrev, $rolePref, $roleAlt);
+                        }
+                    } else {
+                        error_log("Error executing SQL statement: " . $insertStmt->error);
+                    }
+                }
+
+               
+            } else {
+                $isheader = 1;
             }
         }
 
-        // Close the insert statement
+        // Close the insert statement one final time
         $insertStmt->close();
+
+        // Clear PHPExcel objects and unset variables
+        $spreadsheet->disconnectWorksheets();
+        unset($spreadsheet);
+        unset($worksheet);
+        unset($insertStmt);
+
         return true;
     } catch (Exception $e) {
         // Log the exception to a file or database
@@ -266,6 +269,8 @@ function processFileUpload($conn, $formData, $file) {
         echo '<br>' . $e;
     }
 }
+
+
 
 if (isset($_POST['add_user'])) {
     $result = addNewUser($conn, $_POST);
@@ -289,7 +294,6 @@ if (isset($_FILES['user_file']) && $_FILES['user_file']['error'] === UPLOAD_ERR_
 
 
 
-    
 
 
 
