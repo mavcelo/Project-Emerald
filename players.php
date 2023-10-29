@@ -2,8 +2,6 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-
-// php spreadsheet library for speadsheet processing
 require 'vendor/autoload.php';
 include('./db_config.php');
 include('./requester.php');
@@ -11,6 +9,25 @@ include('./requester.php');
 use PhpOffice\PhpSpreadsheet\IOFactory;
 
 session_start();
+
+date_default_timezone_set('US/Eastern');
+
+if (!isset($_SESSION['id'])) {
+    header("Location: /index.php");
+}
+
+if (isset($_SESSION['isadmin']) && $_SESSION['isadmin'] == TRUE) {
+    $guestoradmin = 'Admin';
+} else {
+    $guestoradmin = 'Guest';
+    
+    http_response_code(403);
+    die('<h2 style="color:red">Forbidden</h2>');
+}
+
+if (!isset($_SESSION['user_list'])) {
+    $_SESSION['user_list'] = array();
+}
 
 function relax() {
     ;
@@ -21,129 +38,74 @@ function useRegex($input) {
     return preg_match($regex, $input);
 }
 
-date_default_timezone_set('US/Eastern');
+function addNewUser($conn, $formData) {
+    $sql = "INSERT INTO players (time_registered, read_terms, agree_to_terms, discord_name, team_captain, name, `rank`, rank_previous, role_preferred, role_alternative) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    $stmt = $conn->prepare($sql);
 
+    if (!$stmt) {
+        // Handle preparation error
+        return "Error preparing SQL statement: " . $conn->error;
+    }
 
-if(!isset($_SESSION['id'])) {
-    header("Location: /index.php");
-}
+    $username = htmlspecialchars(strip_tags($formData['user_name']));
+    $api_key = htmlspecialchars(strip_tags($formData['api_key']));
+    $rank = getSummonerRank($username, $api_key);
 
-// check if user is admin
-if(isset($_SESSION['isadmin']) && $_SESSION['isadmin'] == TRUE) {
-    $guestoradmin = 'Admin';
-} else {
-    $guestoradmin = 'Guest';
-    
-    http_response_code(403);
-    die('<h2 style="color:red">Forbidden</h2>');   
-    
-}
+    if (strpos($rank, 'Error') === 0) {
+        $rank = "Need Verify";
+    } elseif (strpos($rank, 'fetching') === 0) {
+        // Handle no games played
+        return "No games played";
+    }
 
-// Check if the user list array exists in the session, if not, create it
-if (!isset($_SESSION['user_list'])) {
-    $_SESSION['user_list'] = array();
-}
+    $rolePref = htmlspecialchars(strip_tags($formData['role']));
 
-// Check if the form is submitted to add a user
-if (isset($_POST['add_user'])) {
     $readTermsValue = "yes";
     $agreeToTermsValue = "yes";
     $teamCaptainValue = "maybe";
     $rankPrevValue = "N/A";
     $roleAltValue = "Fill";
-
-    // Get the user's name from the form, and sanitize
-    $username = htmlspecialchars(strip_tags($_POST['user_name']));
-    if ($_POST['api_key'] == "Optional") {
-        $rank = htmlspecialchars(strip_tags("Need Verify"));
-    } else {
-        $api_key = htmlspecialchars(strip_tags($_POST['api_key']));
-        $rank = getSummonerRank($username, $api_key);
-        if (strpos($rank, 'Error') === 0) {
-            $rank = htmlspecialchars(strip_tags("Need Verify"));
-        } elseif (strpos($rank, 'fetching') === 0){
-            echo "no games played";
-        } else {
-            relax();
-        }
-    }
-    if (strlen($_POST['role']) > 7) {
-        relax();
-    } else {
-        $rolePref = htmlspecialchars(strip_tags($_POST['role']));
-    }
-
     $discordName = "N/A";
-
-    // Insert the new user into the database
     $timestamp = date('n/j/Y H:i:s', time());
-    $sql = "INSERT INTO players (time_registered, read_terms, agree_to_terms, discord_name, team_captain, name, `rank`, rank_previous, role_preferred, role_alternative) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-    $stmt = $conn->prepare($sql);
 
-    if ($stmt) {
-        $stmt->bind_param("ssssssssss", $timestamp, $readTermsValue, $agreeToTermsValue, $discordName, $teamCaptainValue, $username, $rank, $rankPrevValue, $rolePref, $roleAltValue);
+    $stmt->bind_param("ssssssssss", $timestamp, $readTermsValue, $agreeToTermsValue, $discordName, $teamCaptainValue, $username, $rank, $rankPrevValue, $rolePref, $roleAltValue);
 
-        try {
-            $stmt->execute();
-            $_SESSION['user_list'][] = $username;
+    try {
+        $stmt->execute();
+        $_SESSION['user_list'][] = $username;
+    } catch (Exception $e) {
+        return "Character Length too long";
+    }
 
-        } catch (Exception $e) {
-            echo "<span style='color:red'>Character Length too long</span>";
+    $stmt->close();
+    
+    return true;
+}
+
+function removeSelectedUsers($conn, $selectedUsers) {
+    foreach ($selectedUsers as $user) {
+        $userToRemove = htmlspecialchars(strip_tags($user));
+        $index = array_search($userToRemove, $_SESSION['user_list']);
+
+        if ($index !== false) {
+            unset($_SESSION['user_list'][$index]);
+            $_SESSION['user_list'] = array_values($_SESSION['user_list']);
+        }
+
+        $stmt = $conn->prepare("DELETE FROM players WHERE name = ?");
+        $stmt->bind_param("s", $userToRemove);
+
+        if ($stmt->execute()) {
+            relax();
         }
         
         $stmt->close();
-        $stmt = null;
-        gc_collect_cycles();
-    } else {
-        echo "Error preparing SQL statement: " . $conn->error;
     }
-
-    // Close the database connection
-    $conn->close();
-
-    // Add the new user to the session array
+    
+    return true;
 }
 
-
-// Check if the form is submitted to remove selected users
-if (isset($_POST['remove_selected'])) {
-    // Get the selected users to remove
-    if (isset($_POST['selected_users'])) {
-        $selectedUsers = $_POST['selected_users'];
-
-        foreach ($selectedUsers as $user) {
-            $userToRemove = htmlspecialchars(strip_tags($user));
-            
-            // Remove the user from the session array
-            $index = array_search($userToRemove, $_SESSION['user_list']);
-            if ($index !== false) {
-                unset($_SESSION['user_list'][$index]);
-                // Reset array keys to ensure it's sequential
-                $_SESSION['user_list'] = array_values($_SESSION['user_list']);
-            }
-            
-            // Remove the user from the database
-            $stmt = $conn->prepare("DELETE FROM players WHERE name = ?");
-            $stmt->bind_param("s", $userToRemove);
-            
-            if ($stmt->execute()) {
-                // User removed from the database
-                relax();
-            } else {
-                echo "Error removing user from the database: " . $stmt->error;
-            }
-            
-            $stmt->close();
-        }
-
-        // Close the database connection
-    }
-}
-
-
-
-// iterate through the rows
-if (isset($_FILES['user_file']) && $_FILES['user_file']['error'] === UPLOAD_ERR_OK) {
+function processFileUpload($conn, $formData, $file) {
     echo $_POST['api_key'];
     try {
         // Get the uploaded file
@@ -211,7 +173,8 @@ if (isset($_FILES['user_file']) && $_FILES['user_file']['error'] === UPLOAD_ERR_
                     if ($rank > 30 && !is_null($rank)) {
                         if (isset($_POST['api_key'])) {
                             if ($_POST['api_key'] == "Optional") {
-                                $rank = "Need Verify";
+                                // add code to verify if rank is correct. leave as user inputted for
+                                relax();
                             } else {
                                 $api_key = htmlspecialchars(strip_tags($_POST['api_key']));
                                 $rank = getSummonerRank($ign, $api_key);
@@ -285,14 +248,17 @@ if (isset($_FILES['user_file']) && $_FILES['user_file']['error'] === UPLOAD_ERR_
 
                         $checkStmt->close();
                     }
+                    
                 } else {
                     $isheader = 1;
+                    
                 }
             }
         }
 
         // Close the insert statement
         $insertStmt->close();
+        return true;
     } catch (Exception $e) {
         // Log the exception to a file or database
         error_log("An error occurred: " . $e->getMessage());
@@ -301,6 +267,25 @@ if (isset($_FILES['user_file']) && $_FILES['user_file']['error'] === UPLOAD_ERR_
     }
 }
 
+if (isset($_POST['add_user'])) {
+    $result = addNewUser($conn, $_POST);
+    if (is_string($result)) {
+        echo "<span style='color:red'>$result</span>";
+    }
+}
+
+if (isset($_POST['remove_selected'])) {
+    if (isset($_POST['selected_users'])) {
+        removeSelectedUsers($conn, $_POST['selected_users']);
+    }
+}
+
+if (isset($_FILES['user_file']) && $_FILES['user_file']['error'] === UPLOAD_ERR_OK) {
+    $result = processFileUpload($conn, $_POST, $_FILES['user_file']['tmp_name']);
+    if (is_string($result)) {
+        echo $result;
+    }
+}
 
 
 
@@ -452,3 +437,9 @@ if (isset($_FILES['user_file']) && $_FILES['user_file']['error'] === UPLOAD_ERR_
     </div>
 </body>
 </html>
+
+
+
+
+
+
