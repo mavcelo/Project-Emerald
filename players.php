@@ -21,6 +21,9 @@ function useRegex($input) {
     return preg_match($regex, $input);
 }
 
+date_default_timezone_set('US/Eastern');
+
+
 if(!isset($_SESSION['id'])) {
     header("Location: /index.php");
 }
@@ -43,6 +46,12 @@ if (!isset($_SESSION['user_list'])) {
 
 // Check if the form is submitted to add a user
 if (isset($_POST['add_user'])) {
+    $readTermsValue = "yes";
+    $agreeToTermsValue = "yes";
+    $teamCaptainValue = "maybe";
+    $rankPrevValue = "N/A";
+    $roleAltValue = "Fill";
+
     // Get the user's name from the form, and sanitize
     $username = htmlspecialchars(strip_tags($_POST['user_name']));
     if ($_POST['api_key'] == "Optional") {
@@ -61,14 +70,18 @@ if (isset($_POST['add_user'])) {
     if (strlen($_POST['role']) > 7) {
         relax();
     } else {
-        $role = htmlspecialchars(strip_tags($_POST['role']));
+        $rolePref = htmlspecialchars(strip_tags($_POST['role']));
     }
+
+    $discordName = "N/A";
+
     // Insert the new user into the database
-    $sql = "INSERT INTO players (name, `rank`, role) VALUES (?, ?, ?)";
+    $timestamp = date('n/j/Y H:i:s', time());
+    $sql = "INSERT INTO players (time_registered, read_terms, agree_to_terms, discord_name, team_captain, name, `rank`, rank_previous, role_preferred, role_alternative) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
 
     if ($stmt) {
-        $stmt->bind_param("sss", $username, $rank, $role);
+        $stmt->bind_param("ssssssssss", $timestamp, $readTermsValue, $agreeToTermsValue, $discordName, $teamCaptainValue, $username, $rank, $rankPrevValue, $rolePref, $roleAltValue);
 
         try {
             $stmt->execute();
@@ -79,6 +92,8 @@ if (isset($_POST['add_user'])) {
         }
         
         $stmt->close();
+        $stmt = null;
+        gc_collect_cycles();
     } else {
         echo "Error preparing SQL statement: " . $conn->error;
     }
@@ -129,6 +144,7 @@ if (isset($_POST['remove_selected'])) {
 
 // iterate through the rows
 if (isset($_FILES['user_file']) && $_FILES['user_file']['error'] === UPLOAD_ERR_OK) {
+    echo $_POST['api_key'];
     try {
         // Get the uploaded file
         $file = $_FILES['user_file']['tmp_name'];
@@ -140,82 +156,152 @@ if (isset($_FILES['user_file']) && $_FILES['user_file']['error'] === UPLOAD_ERR_
         $worksheet = $spreadsheet->getActiveSheet();
 
         $isheader = 0;
-        // Iterate through the rows
-        foreach ($worksheet->getRowIterator() as $row) {
-            if ($isheader > 0) {
-                // Get the values for name, rank, and role from the respective columns
-                $sheetTimestamp = $worksheet->getCellByColumnAndRow(1, $row->getRowIndex())->getValue();
-                $readTerms = $worksheet->getCellByColumnAndRow(2, $row->getRowIndex())->getValue();
-                $agreeToTerms = $worksheet->getCellByColumnAndRow(3, $row->getRowIndex())->getValue();
-                $discordName = $worksheet->getCellByColumnAndRow(4, $row->getRowIndex())->getValue();
-                $teamCaptain = $worksheet->getCellByColumnAndRow(5, $row->getRowIndex())->getValue();                
-                $ign = $worksheet->getCellByColumnAndRow(6, $row->getRowIndex())->getValue();
-                $rank = $worksheet->getCellByColumnAndRow(7, $row->getRowIndex())->getValue();
-                $rankPrev = $worksheet->getCellByColumnAndRow(8, $row->getRowIndex())->getValue();
-                $rolePref = $worksheet->getCellByColumnAndRow(9, $row->getRowIndex())->getValue();
-                $roleSec = $worksheet->getCellByColumnAndRow(2, $row->getRowIndex())->getValue();
 
-                $unixTimestamp = ($sheetTimestamp - 25569) * 86400;
-                $dateTime = DateTime::createFromFormat('U.u', $unixTimestamp);
-                if ($dateTime !== false) {
-                    // Format the DateTime as a human-readable date and time
-                    $timestamp = $dateTime->format('n/j/Y H:i:s');
-                } else {
-                    relax();
-                }
+        // Prepare the SQL statement for inserting data into the database
+        $insertQuery = "INSERT INTO players (time_registered, read_terms, agree_to_terms, discord_name, team_captain, name, `rank`, rank_previous, role_preferred, role_alternative) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        $insertStmt = $conn->prepare($insertQuery);
+        if ($_POST['api_key'] == 'Optional') {
+            echo '<span style="color:orange">An uploaded rank was unable to be set. API key not found for auto-correction</span>';
+        }
 
-                if (is_null($rank) || strlen($rank) > 11) {
-                    $rank = "Need Verify"; // No need to use htmlspecialchars here
-                }
+        if (!$insertStmt) {
+            error_log("Error preparing SQL statement: " . $conn->error);
+        } else {
 
-                // Skip rows with empty ign, rank, or role
-                if (!empty($ign) && !empty($rank) && !empty($rolePref)) {
-                    // Check if the user already exists in the database
-                    $checkQuery = "SELECT name FROM players WHERE name = ?";
-                    $checkStmt = $conn->prepare($checkQuery);
-                    $checkStmt->bind_param("s", $ign);
-                    $checkStmt->execute();
-                    $checkStmt->store_result();
+            $insertStmt->bind_param("ssssssssss", $timestamp, $readTerms, $agreeToTerms, $discordName, $teamCaptain, $ign, $rank, $rankPrev, $rolePref, $roleAlt);
+            
+            // Iterate through the rows
+            foreach ($worksheet->getRowIterator() as $row) {
+                if ($isheader > 0) {
+                    // Get the values for each column
+                    $sheetTimestamp = $worksheet->getCellByColumnAndRow(1, $row->getRowIndex())->getValue();
+                    $readTerms = $worksheet->getCellByColumnAndRow(2, $row->getRowIndex())->getValue();
+                    $agreeToTerms = $worksheet->getCellByColumnAndRow(3, $row->getRowIndex())->getValue();
+                    $discordName = $worksheet->getCellByColumnAndRow(4, $row->getRowIndex())->getValue();
+                    $teamCaptain = $worksheet->getCellByColumnAndRow(5, $row->getRowIndex())->getValue();
+                    $ign = $worksheet->getCellByColumnAndRow(6, $row->getRowIndex())->getValue();
+                    $rank = $worksheet->getCellByColumnAndRow(7, $row->getRowIndex())->getValue();
+                    $rankPrev = $worksheet->getCellByColumnAndRow(8, $row->getRowIndex())->getValue();
+                    $rolePref = $worksheet->getCellByColumnAndRow(9, $row->getRowIndex())->getValue();
+                    $roleAlt = $worksheet->getCellByColumnAndRow(10, $row->getRowIndex())->getValue();
 
-                    if ($checkStmt->num_rows == 0) {
+                    // Check for null values before using htmlspecialchars
+                    $readTerms = ($readTerms !== null) ? htmlspecialchars($readTerms) : null;
+                    $agreeToTerms = ($agreeToTerms !== null) ? htmlspecialchars($agreeToTerms) : null;
+                    $discordName = ($discordName !== null) ? htmlspecialchars($discordName) : null;
+                    $teamCaptain = ($teamCaptain !== null) ? htmlspecialchars($teamCaptain) : null;
+                    $ign = ($ign !== null) ? htmlspecialchars($ign) : null;
+                    $rank = ($rank !== null && !is_null($rank) && strlen($rank) <= 11) ? htmlspecialchars($rank) : "Need Verify";
+                    $rankPrev = ($rankPrev !== null) ? htmlspecialchars($rankPrev) : null;
+                    $rolePref = ($rolePref !== null) ? htmlspecialchars($rolePref) : null;
+                    $roleAlt = ($roleAlt !== null) ? htmlspecialchars($roleAlt) : null;
 
-                        // Insert data into the database using prepared statements
-                        $sql = "INSERT INTO players (name, `rank`, role_preferred, time_registered) VALUES (?, ?, ?, ?)";
-                        $stmt = $conn->prepare($sql);
-                        $nameValue = htmlspecialchars($ign);
-                        $rankValue = htmlspecialchars($rank);
-                        $roleValue = htmlspecialchars($rolePref);
+                    if (!is_null($rank)) {
+                        $rank = useRegex($rank);
+                    } else {
+                        $rank = "Need Verify";
+                    }
+                    
+                    if (!is_null($rankPrev)) {
+                        $rankPrev = useRegex($rankPrev);
+                    } else {
+                        $rankPrev = "Need Verify";
+                    }
 
-                        if ($stmt) {
-                            $stmt->bind_param("ssss", $nameValue, $rankValue, $roleValue, $timestamp);   
-
-                            if ($stmt->execute()) {
-                                relax();
+                    if ($rank > 30 && !is_null($rank)) {
+                        if (isset($_POST['api_key'])) {
+                            if ($_POST['api_key'] == "Optional") {
+                                $rank = "Need Verify";
                             } else {
-                                // Log the error to a file or database
-                                error_log("Error executing SQL statement: " . $stmt->error);
+                                $api_key = htmlspecialchars(strip_tags($_POST['api_key']));
+                                $rank = getSummonerRank($ign, $api_key);
+                                if (strpos($rank, 'Error') === 0) {
+                                    $rank = "Need Verify";
+                                } elseif (strpos($rank, 'fetching') === 0){
+                                    $rank = "Need Verify";
+                                } else {
+                                    relax();
+                                }
                             }
-                            $stmt->close();
-                        } else {
-                            error_log("Error preparing SQL statement: " . $conn->error);
                         }
+
+                        $rank = "Need Verify";
+                    } else {
+                        $rank = "Need Verify";
+                    }
+
+                    if ($rankPrev > 30 && !is_null($rankPrev)) {
+                        if (isset($_POST['api_key'])) {
+                            if ($_POST['api_key'] == "Optional") {
+                                $rankPrev = "Need Verify";
+                            } else {
+                                $api_key = htmlspecialchars(strip_tags($_POST['api_key']));
+                                $rankPrev = getSummonerRank($ign, $api_key);
+                                if (strpos($rankPrev, 'Error') === 0) {
+                                    $rankPrev = "Need Verify";
+                                } elseif (strpos($rankPrev, 'fetching') === 0){
+                                    echo "no games played";
+                                    $rankPrev = "Need Verify";
+                                } else {
+                                    relax();
+                                }
+                            }
+                        }
+
+                        $rankPrev = "Need Verify";
+                    } else {
+                        $rankPrev = "Need Verify";
+                    }
+
+                    // Process the timestamp
+                    $unixTimestamp = ($sheetTimestamp - 25569) * 86400;
+                    $dateTime = DateTime::createFromFormat('U.u', $unixTimestamp);
+                    if ($dateTime !== false) {
+                        // Format the DateTime as a human-readable date and time
+                        $timestamp = $dateTime->format('n/j/Y H:i:s');
                     } else {
                         relax();
                     }
 
-                    $checkStmt->close();
+                    // Skip rows with empty ign, rank, or role
+                    if (!empty($ign) && !empty($rank) && !empty($rolePref)) {
+                        // Check if the user already exists in the database
+                        $checkQuery = "SELECT name FROM players WHERE name = ?";
+                        $checkStmt = $conn->prepare($checkQuery);
+                        $checkStmt->bind_param("s", $ign);
+                        $checkStmt->execute();
+                        $checkStmt->store_result();
+
+                        if ($checkStmt->num_rows == 0) {
+                            // Execute the insert statement
+                            if ($insertStmt->execute()) {
+                                relax();
+                            } else {
+                                error_log("Error executing SQL statement: " . $insertStmt->error);
+                            }
+                        } else {
+                            relax();
+                        }
+
+                        $checkStmt->close();
+                    }
+                } else {
+                    $isheader = 1;
                 }
-            } else {
-                $isheader = 1;
             }
         }
+
+        // Close the insert statement
+        $insertStmt->close();
     } catch (Exception $e) {
         // Log the exception to a file or database
         error_log("An error occurred: " . $e->getMessage());
         echo "An error occurred while processing the file. Please try again later.";
-        echo $e;
+        echo '<br>' . $e;
     }
 }
+
+
 
 
     
@@ -298,7 +384,7 @@ if (isset($_FILES['user_file']) && $_FILES['user_file']['error'] === UPLOAD_ERR_
             <div class="box" id="users">
                 <form method="post">
                     <div class="form-group">
-                        <label for="api_key" class="form-label">Enter RIOT API key (or verify rank manually):</label>
+                        <label for="api_key" class="form-label">Enter RIOT API key to verify user ranks (or verify rank manually):</label>
                         <input type="text" id="api_key" name="api_key" class="form-control" value="Optional">
                     </div>
                     <div class="form-group">
@@ -340,14 +426,28 @@ if (isset($_FILES['user_file']) && $_FILES['user_file']['error'] === UPLOAD_ERR_
                             }
                         ?>
                     </select>
-                    <button type="submit" name="remove_selected" class="btn btn-danger mt-3">Remove Selected Users</button>
-                </form>
-                <form method="post" enctype="multipart/form-data" class="file-upload">
+
+                    <!-- TEST -->
                     <label for="user_file" class="form-label">Upload Spreadsheet:</label>
                     <input type="file" id="user_file" name="user_file" accept=".csv, .xls, .xlsx">
-                    <button type="submit" name="upload_file" class="btn btn-success mt-3">Upload Spreadsheet</button>
+                    <button type="submit" name="upload_file" class="btn btn-success mt-3">Submit Spreadsheet</button>
+                    <input type="hidden" id="api_key_copy" name="api_key" class="form-control" value="Optional">                    
+                    <button type="submit" name="remove_selected" class="btn btn-danger mt-3">Remove Selected Users</button>
+                    <!-- TEST -->
                 </form>
+                <!-- <form method="post" enctype="multipart/form-data" class="file-upload">
+                    <label for="user_file" class="form-label">Upload Spreadsheet:</label>
+                    <input type="file" id="user_file" name="user_file" accept=".csv, .xls, .xlsx">
+                    <input type="text" id="api_key" name="api_key" class="form-control" value="Optional">
+                    <button type="submit" name="upload_file" class="btn btn-success mt-3">Upload Spreadsheet</button>
+                </form> -->
             </div>
+            <script>
+                // JavaScript to copy the api_key value from the first form to the hidden input in the second form
+                document.getElementById('api_key').addEventListener('input', function() {
+                    document.getElementById('api_key_copy').value = this.value;
+                });
+            </script>
         </div>
     </div>
 </body>
