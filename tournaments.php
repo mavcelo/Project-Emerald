@@ -122,7 +122,7 @@ player list. IF not possible, add the players to play in other area on dashboard
         // Function to populate the div with data for a specific role
         function populateRoleDiv($conn, $role) {
             // Retrieve data from the database for the specified role
-            $sql = "SELECT name, `rank`, role FROM players WHERE role = ?";
+            $sql = "SELECT name, `rank`, role_preferred FROM players WHERE role_preferred = ?";
             $stmt = mysqli_prepare($conn, $sql);
             mysqli_stmt_bind_param($stmt, "s", $role);
             mysqli_stmt_execute($stmt);
@@ -148,7 +148,7 @@ player list. IF not possible, add the players to play in other area on dashboard
                         <td value='$user' onclick=location.href=$url>$user</td>
                     ";
                     echo "<td>" . $row["rank"] . "</td>";
-                    echo "<td>" . $row["role"] . "</td>";
+                    echo "<td>" . $row["role_preferred"] . "</td>";
                     echo "</tr>";
                 }
 
@@ -167,7 +167,7 @@ player list. IF not possible, add the players to play in other area on dashboard
         <!-- Example usage for each role -->
         <br><br><br><br><br><div class="container-fluid d-flex justify-content-between align-items-end">
             <?php
-            $roles = array("top", "jungle", "mid", "bottom", "support");
+            $roles = array("top", "jungle", "mid", "adc", "support");
             foreach ($roles as $role) {
                 populateRoleDiv($conn, $role); // Call the function to populate the div for each role
             }

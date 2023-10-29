@@ -46,3 +46,7 @@ function getSummonerRank($summonerName, $apiKey) {
         return "Error fetching summoner data.";
     }
 }
+
+
+
+// need to know current rank, last season peak rank, account level, games played this season/split
