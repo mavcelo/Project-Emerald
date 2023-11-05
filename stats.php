@@ -1,5 +1,6 @@
 <?php
 session_start();
+include('./requester.php');
 
 if(!isset($_SESSION['id'])) {
     header("Location: /index.php");
@@ -43,36 +44,14 @@ if($_SESSION['isadmin'] == TRUE) {
             </div>
         </nav>
     
-    
-    
-    
-    
-    
-    
-        <div class="ms-4 mt-3 w3-border w3-round ws-grey col-md-4" id="users">
-            <table class="table table-hover" style="height:150px" id="summonerNames" multiple>
-                <thead>
-                    <th>Username</th>
-                    <th>
-                </thead>
-                <tbody>
-                    <?php 
-                    // Loops through the session array of users to securely get the users from the players page entry 
-                    if (isset($_SESSION['user_list'][0])) {
-                        foreach ($_SESSION['user_list'] as $user) {
-                            $url = "'https://www.op.gg/summoners/na/".urlencode($user)."'";
-                            echo "
-                            <tr>
-                                <td value='$user' onclick=location.href=$url>$user</td>
-                            </tr>
-                            ";
-                        }
-                    } else {
-                        echo "<tr><td>No Players Found</tr></td>";
-                    }
-                    ?>
-                </tbody>
-            </table>
-        </div>
+        <form action="get_match_data.php" method="post">
+        <label for="matchId">Match ID:</label>
+        <input type="text" id="matchId" name="matchId" required>
+        <br>
+        <label for="riotToken">Riot Token:</label>
+        <input type="text" id="riotToken" name="riotToken" required>
+        <br>
+        <button type="submit">Get Match Data</button>
+        </form>
 
     </body>
