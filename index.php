@@ -2,7 +2,6 @@
 include('db_config.php');
 session_start();
 
-
 // broken, sets to 0 on refresh, not the intended affect, set to 0 to get rid of error for now
 $_SESSION['attempt'] = 0;
 ?>
@@ -17,7 +16,7 @@ $_SESSION['attempt'] = 0;
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Home</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="styles/style.css">
     <link rel="icon" href="./favicon.ico" type="image/x-icon">
   </head>
   <body class="login"> 
