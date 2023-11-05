@@ -74,7 +74,7 @@ function getMatchData($matchId, $riotToken) {
         return ["error" => "API request error (HTTP code: $httpCode)"];
     }
 
-    $decodedOutput = json_decode($output, true);
+    $decodedOutput = json_decode($output, true, JSON_PRETTY_PRINT);
 
     if ($decodedOutput === null) {
         // JSON decoding failed
