@@ -55,9 +55,20 @@ if($_SESSION['isadmin'] == TRUE) {
         </form>
 
         <?php 
-            echo "<pre>"; // Use <pre> tag for a more readable output
-            print_r($results); // Use print_r to display the array contents
-            echo "</pre>";
+            if (isset($_POST['submit'])) {
+                $matchId = htmlspecialchars($_POST['matchId']);
+                $riotToken = htmlspecialchars($_POST['riotToken']);
+                
+                $results = getMatchData($matchId, $riotToken);
+            
+                if (isset($results['error'])) {
+                    echo "Error: " . $results['error'];
+                } else {
+                    echo "<pre>"; // Use <pre> tag for a more readable output
+                    print_r($results); // Use print_r to display the array contents
+                    echo "</pre>";
+                }
+            }
         
         ?>
     </body>
