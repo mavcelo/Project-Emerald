@@ -44,14 +44,20 @@ if($_SESSION['isadmin'] == TRUE) {
             </div>
         </nav>
     
-        <form action="get_match_data.php" method="post">
-        <label for="matchId">Match ID:</label>
-        <input type="text" id="matchId" name="matchId" required>
-        <br>
-        <label for="riotToken">Riot Token:</label>
-        <input type="text" id="riotToken" name="riotToken" required>
-        <br>
-        <button type="submit">Get Match Data</button>
+        <form method="post">
+            <label for="matchId">Match ID:</label>
+            <input type="text" id="matchId" name="matchId" required>
+            <br>
+            <label for="riotToken">Riot Token:</label>
+            <input type="text" id="riotToken" name="riotToken" required>
+            <br>
+            <button name="submit" type="submit">Get Match Data</button>
         </form>
 
+        <?php 
+        if(isset($_POST['submit'])) {
+            echo getMatchData(htmlspecialchars($_POST['matchID']), htmlspecialchars($_POST['riotToken']));
+        }
+        
+        ?>
     </body>
