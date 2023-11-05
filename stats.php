@@ -59,7 +59,9 @@ if($_SESSION['isadmin'] == TRUE) {
             $results = getMatchData(htmlspecialchars($_POST['matchId']), htmlspecialchars($_POST['riotToken']));
             $data = json_encode($results, JSON_PRETTY_PRINT);
             header('Content-Type: application/json');
+            echo "<div>";
             echo $data;
+            echo "</div>";
         }
         
         ?>
