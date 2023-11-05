@@ -112,7 +112,7 @@ function addNewUser($conn, $formData) {
     $rankPrevValue = "N/A";
     $roleAltValue = "Fill";
     $discordName = "N/A";
-    $timestamp = date('n/j/Y H:i:s', time());
+    $timestamp = date('y-m-d H:i:s', time());
 
     $stmt->bind_param("ssssssssss", $timestamp, $readTermsValue, $agreeToTermsValue, $discordName, $teamCaptainValue, $username, $rank, $rankPrevValue, $rolePref, $roleAltValue);
 
@@ -161,7 +161,7 @@ function processFileUpload($conn, $formData, $file) {
 
     $isheader = 0;
     
-    $chunkSize = 100; // Define your desired chunk size
+    $chunkSize = 20; // Define your desired chunk size
     $rowCounter = 0;
 
     // Initialize the $worksheet outside the loop
@@ -182,7 +182,7 @@ function processFileUpload($conn, $formData, $file) {
                             
                 
                 // Get the values for each column
-                $sheetTimestamp = $worksheet->getCellByColumnAndRow(1, $row->getRowIndex())->getValue();
+                $timestampColumn = $worksheet->getCellByColumnAndRow(1, $row->getRowIndex())->getValue();
                 $readTerms = $worksheet->getCellByColumnAndRow(2, $row->getRowIndex())->getValue();
                 $agreeToTerms = $worksheet->getCellByColumnAndRow(3, $row->getRowIndex())->getValue();
                 $discordName = $worksheet->getCellByColumnAndRow(4, $row->getRowIndex())->getValue();
@@ -203,19 +203,23 @@ function processFileUpload($conn, $formData, $file) {
                 $rankPrev = ($rankPrev !== null) ? htmlspecialchars($rankPrev) : null;
                 $rolePref = ($rolePref !== null) ? htmlspecialchars($rolePref) : null;
                 $roleAlt = ($roleAlt !== null) ? htmlspecialchars($roleAlt) : null;
-
+                $timestampColumn = ($timestampColumn !== null) ? htmlspecialchars($timestampColumn) : null;
                 
                 $rank = processRank($rank);
                 $rankPrev = processRank($rankPrev);
 
                 // Process the timestamp
-                $unixTimestamp = ($sheetTimestamp - 25569) * 86400;
-                $dateTime = DateTime::createFromFormat('U.u', $unixTimestamp);
-                if ($dateTime !== false) {
-                    // Format the DateTime as a human-readable date and time
-                    $timestamp = $dateTime->format('n/j/Y H:i:s');
+                if ($timestampColumn !== null) {
+                    $unixTimestamp = ($timestampColumn - 25569) * 86400;
+                    $dateTime = DateTime::createFromFormat('U.u', $unixTimestamp);
+                    if ($dateTime !== false) {
+                        // Format the DateTime as a human-readable date and time
+                        $timestamp = $dateTime->format('y-m-d H:i:s');
+                    } else {
+                        relax();
+                    }
                 } else {
-                    relax();
+                    $timestamp = null; // Or set to an appropriate default value
                 }
                 if (isUserInDatabase($conn, $ign)) {
                     // User already exists, skip this user
@@ -424,12 +428,7 @@ if (isset($_FILES['user_file']) && $_FILES['user_file']['error'] === UPLOAD_ERR_
                     <button type="submit" name="remove_selected" class="btn btn-danger mt-3">Remove Selected Users</button>
                     <!-- TEST -->
                 </form>
-                <!-- <form method="post" enctype="multipart/form-data" class="file-upload">
-                    <label for="user_file" class="form-label">Upload Spreadsheet:</label>
-                    <input type="file" id="user_file" name="user_file" accept=".csv, .xls, .xlsx">
-                    <input type="text" id="api_key" name="api_key" class="form-control" value="Optional">
-                    <button type="submit" name="upload_file" class="btn btn-success mt-3">Upload Spreadsheet</button>
-                </form> -->
+
             </div>
             <script>
                 // JavaScript to copy the api_key value from the first form to the hidden input in the second form
