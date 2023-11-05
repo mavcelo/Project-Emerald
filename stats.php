@@ -55,12 +55,9 @@ if($_SESSION['isadmin'] == TRUE) {
         </form>
 
         <?php 
-        if(isset($_POST['submit'])) {
-            $results = getMatchData(htmlspecialchars($_POST['matchId']), htmlspecialchars($_POST['riotToken']));
-            echo "<div>";
-            echo $results;
-            echo "</div>";
-        }
+            echo "<pre>"; // Use <pre> tag for a more readable output
+            print_r($results); // Use print_r to display the array contents
+            echo "</pre>";
         
         ?>
     </body>
