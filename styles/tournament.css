@@ -1,0 +1,32 @@
+.tab {
+    display: inline-block;
+    padding: 10px 10px;
+    cursor: pointer;
+    color: white;
+    text-decoration: none;
+}
+
+/* Style for the active tab */
+.active {
+    background-color: #ddd;
+    color: black;
+}
+
+/* Content container for the tab content */
+#content {
+    padding: 20px;
+    text-align: center;
+}
+
+.role-div {
+    display: flex;
+    top: 5px;
+    flex-direction: column;
+}
+
+.table-container {
+    position: absolute;
+    top: 400px;
+    flex-grow: 1;
+    overflow-y: auto;
+}
