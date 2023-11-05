@@ -60,9 +60,29 @@ function getMatchData($matchId, $riotToken) {
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
     curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
     $output = curl_exec($ch);
+
+    if ($output === false) {
+        // cURL request failed
+        return ["error" => "cURL request failed"];
+    }
+
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
 
-    return json_decode($output, true);
+    if ($httpCode !== 200) {
+        // The API request returned an error response
+        return ["error" => "API request error (HTTP code: $httpCode)"];
+    }
+
+    $decodedOutput = json_decode($output, true);
+
+    if ($decodedOutput === null) {
+        // JSON decoding failed
+        return ["error" => "Invalid JSON response"];
+    }
+
+    return $decodedOutput;
 }
+
 
 // need to know current rank, last season peak rank, account level, games played this season/split
