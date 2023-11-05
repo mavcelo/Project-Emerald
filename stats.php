@@ -56,7 +56,8 @@ if($_SESSION['isadmin'] == TRUE) {
 
         <?php 
         if(isset($_POST['submit'])) {
-            echo getMatchData(htmlspecialchars($_POST['matchID']), htmlspecialchars($_POST['riotToken']));
+            $data = getMatchData(htmlspecialchars($_POST['matchID']), htmlspecialchars($_POST['riotToken']));
+            echo json_encode($data);
         }
         
         ?>
