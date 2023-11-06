@@ -227,68 +227,66 @@ function calculateGameInfo($conn) {
 
         <div id="tabs">
             
-        <div id="content">
-            <div id="draftOrganizationContent" class="tabContent" style="display: none;">
-            <!-- Content for the Setup View tab -->
-            <h2>Draft View</h2>
-            <p>This is the Draft View content.</p>
-            <p>Specific data for Draft View goes here.</p>
-            
+            <div id="content">
+                <div id="draftOrganizationContent" class="tabContent" style="display: none;">
+                    <!-- Content for the Setup View tab -->
+                    <h2>Draft View</h2>
+                    <p>This is the Draft View content.</p>
+                    <p>Specific data for Draft View goes here.</p>
+                </div>
             </div>
 
-        </div>
 
-
-        <div class="tabContent" id="signupViewContent" style="display: block">
-            <div class="col-md-7" style="margin: auto">
-                <table class="table table-striped ">
-                    <tr>
-                        <th>Player Count</th>
-                        <th>Possible Teams</th>
-                        <th>Extra Players</th>
-                        <th>Top Players</th>
-                        <th>Jungle Players</th>
-                        <th>Mid Players</th>
-                        <th>Adc Players</th>
-                        <th>Support Players</th>
-                    </tr>
-                    <tr>
-                        <td><?php echo countPlayers($conn); ?></td>
-                        <td><?php $data = calculateGameInfo($conn); echo $data['possibleTeamsCount'];?></td>
-                        <td>
-                            <?php 
-                            $data = calculateGameInfo($conn);
-                            if ($data['hasRemainingPlayers']) {
-                                if ($data['extraPlayersCount'] > 1) {
-                                    echo $data['extraPlayersCount'] . " extra players";
+            <div class="tabContent" id="signupViewContent" style="display: block">
+                <div class="col-md-7" style="margin: auto">
+                    <table class="table table-striped ">
+                        <tr>
+                            <th>Player Count</th>
+                            <th>Possible Teams</th>
+                            <th>Extra Players</th>
+                            <th>Top Players</th>
+                            <th>Jungle Players</th>
+                            <th>Mid Players</th>
+                            <th>Adc Players</th>
+                            <th>Support Players</th>
+                        </tr>
+                        <tr>
+                            <td><?php echo countPlayers($conn); ?></td>
+                            <td><?php $data = calculateGameInfo($conn); echo $data['possibleTeamsCount'];?></td>
+                            <td>
+                                <?php 
+                                $data = calculateGameInfo($conn);
+                                if ($data['hasRemainingPlayers']) {
+                                    if ($data['extraPlayersCount'] > 1) {
+                                        echo $data['extraPlayersCount'] . " extra players";
+                                    } else {
+                                        echo $data['extraPlayersCount'] . " extra player";
+                                    }
                                 } else {
-                                    echo $data['extraPlayersCount'] . " extra player";
+                                    echo 'No extra players';
                                 }
-                            } else {
-                                echo 'No extra players';
-                            }
-                        
-                            ?>
-                        </td>
-                        <td><?php $data = calculateGameInfo($conn); echo $data['roleCounts']['top'];?></td>
-                        <td><?php $data = calculateGameInfo($conn); echo $data['roleCounts']['jungle'];?></td>
-                        <td><?php $data = calculateGameInfo($conn); echo $data['roleCounts']['mid'];?></td>
-                        <td><?php $data = calculateGameInfo($conn); echo $data['roleCounts']['adc'];?></td>
-                        <td><?php $data = calculateGameInfo($conn); echo $data['roleCounts']['support'];?></td>
-                    </tr>
-                </table>
+                            
+                                ?>
+                            </td>
+                            <td><?php $data = calculateGameInfo($conn); echo $data['roleCounts']['top'];?></td>
+                            <td><?php $data = calculateGameInfo($conn); echo $data['roleCounts']['jungle'];?></td>
+                            <td><?php $data = calculateGameInfo($conn); echo $data['roleCounts']['mid'];?></td>
+                            <td><?php $data = calculateGameInfo($conn); echo $data['roleCounts']['adc'];?></td>
+                            <td><?php $data = calculateGameInfo($conn); echo $data['roleCounts']['support'];?></td>
+                        </tr>
+                    </table>
+                </div>
+                
+                <div class="container-fluid justify-content-between align-items-end" id="signupViewContentTables" style="display: flex">
+                <?php
+                $roles = array("top", "jungle", "mid", "adc", "support");
+                foreach ($roles as $role) {
+                    populateRoleDiv($conn, $role); // Call the function to populate the div for each role
+                }
+                ?>
+                </div>                
             </div>
-            
-            <div class="container-fluid justify-content-between align-items-end" id="signupViewContentTables" style="display: flex">
-            <?php
-            $roles = array("top", "jungle", "mid", "adc", "support");
-            foreach ($roles as $role) {
-                populateRoleDiv($conn, $role); // Call the function to populate the div for each role
-            }
-            ?>
-            </div>                
         </div>
-
 
 
     </body>
