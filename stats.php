@@ -97,7 +97,7 @@ if($_SESSION['isadmin'] == TRUE) {
                     } else {
                         echo "<pre>"; // Use <pre> tag for a more readable output
                         // print_r($results); // Use print_r to display the array contents
-                        $playerName = getPlayerNamesFromMatch($matchId, $riotToken, $conn);
+                        $playerName = getPlayerNamesFromMatchAsync($matchId, $riotToken, $conn);
                         print_r($playerName);
 
                         echo "Kills: " . $results['info']['participants']['0']['kills'] . "\n";
