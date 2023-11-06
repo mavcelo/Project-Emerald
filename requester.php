@@ -87,46 +87,31 @@ function getMatchData($matchId, $riotToken) {
     return $decodedOutput;
 }
 
-function getPlayerNamesFromMatchAsync($matchId, $riotToken, $conn) {
+function getPlayerNamesFromMatch($matchId, $riotToken, $conn) {
     $matchData = getMatchData($matchId, $riotToken);
     if (isset($matchData['metadata']['participants'])) {
         $puuids = $matchData['metadata']['participants'];
         $playerNames = array();
-        $chArray = array(); // Array to hold cURL handles
+
+        // Get existing PUUIDs and player names from the database
+        $existingData = getExistingPuuidsFromDatabase($conn);
 
         foreach ($puuids as $puuid) {
-            $chArray[] = getPlayerDataFromPuuidAsync($puuid, $riotToken);
-        }
-
-        // Initialize a multi-cURL session
-        $multiHandle = curl_multi_init();
-
-        foreach ($chArray as $ch) {
-            curl_multi_add_handle($multiHandle, $ch);
-        }
-
-        $running = null;
-        do {
-            curl_multi_exec($multiHandle, $running);
-        } while ($running > 0);
-
-        foreach ($chArray as $ch) {
-            $output = curl_multi_getcontent($ch);
-            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            curl_multi_remove_handle($multiHandle, $ch);
-
-            if ($httpCode === 200) {
-                $decodedOutput = json_decode($output, true);
-                if (isset($decodedOutput['name'])) {
-                    $playerName = $decodedOutput['name'];
+            if (array_key_exists($puuid, $existingData)) {
+                // PUUID exists in the database
+                $playerNames[] = $existingData[$puuid];
+            } else {
+                // PUUID not in the database, retrieve the name from Riot API
+                $playerData = getPlayerDataFromPuuid($puuid, $riotToken);
+                if (isset($playerData['name'])) {
+                    $playerName = $playerData['name'];
                     $playerNames[] = $playerName;
-                    // Store the PUUID and player name in the database
+
+                    // Insert the PUUID and player name into the database
                     storePlayerDataInDatabase($conn, $puuid, $playerName);
                 }
             }
         }
-
-        curl_multi_close($multiHandle);
 
         return $playerNames;
     } else {
@@ -138,23 +123,23 @@ function getPlayerNamesFromMatchAsync($matchId, $riotToken, $conn) {
 
 
 // Function to get PUUID from the database
-function getExistingPuuidsAndNamesFromDatabase($conn) {
-    $existingData = array();
+function getExistingPuuidsFromDatabase($conn) {
+    $existingPuuids = array();
 
-    // Replace 'your_table_name' with the actual table name where PUUIDs and player names are stored
+    // Replace 'your_table_name' with the actual table name where PUUIDs are stored
     $tableName = 'players';
 
-    $sql = "SELECT puuid, name FROM $tableName";
+    $sql = "SELECT puuid FROM $tableName";
 
     $result = mysqli_query($conn, $sql);
 
     if ($result) {
         while ($row = mysqli_fetch_assoc($result)) {
-            $existingData[$row['puuid']] = $row['name'];
+            $existingPuuids[] = $row['puuid'];
         }
     }
 
-    return $existingData;
+    return $existingPuuids;
 }
 
 
@@ -196,7 +181,7 @@ function getPlayerNameFromDatabase($conn, $puuid) {
 }
 
 
-function getPlayerDataFromPuuidAsync($puuid, $riotToken) {
+function getPlayerDataFromPuuid($puuid, $riotToken) {
     $url = "https://na1.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/$puuid";
     $headers = [
         "Accept: Application/json",
@@ -207,8 +192,28 @@ function getPlayerDataFromPuuidAsync($puuid, $riotToken) {
     curl_setopt($ch, CURLOPT_URL, $url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
     curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+    $output = curl_exec($ch);
 
-    return $ch;
+    if ($output === false) {
+        // cURL request failed
+        return ["error" => "cURL request failed"];
+    }
+
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    if ($httpCode !== 200) {
+        // The API request returned an error response
+        return ["error" => "API request error (HTTP code: $httpCode)"];
+    }
+
+    $decodedOutput = json_decode($output, true);
+    if ($decodedOutput === null) {
+        // JSON decoding failed
+        return ["error" => "Invalid JSON response"];
+    }
+
+    return $decodedOutput;
 }
 
 function storePlayerDataInDatabase($conn, $puuid, $playerName) {
