@@ -317,7 +317,7 @@ function getPlayerKDAFromMatch($matchId, $riotToken, $conn) {
         foreach ($participants as $participant) {
             $puuid = $participant['puuid'];
             $playerName = $participant['summonerName'];
-
+            $gameTime = $matchData['info']['gameDuration'];
             // Check if the PUUID is in the database
             if (in_array($puuid, $existingPuuids)) {
                 // Player exists by PUUID in the database; you can retrieve additional data as needed
@@ -325,12 +325,29 @@ function getPlayerKDAFromMatch($matchId, $riotToken, $conn) {
                 $kills = $participant['kills'];
                 $deaths = $participant['deaths'];
                 $assists = $participant['assists'];
-
+                $kd = $participant['kills'] / $participant['deaths'];
+                $kad = ($participant['kills'] + $participant['assists']) / $participant['deaths'];
+                $cs = $participant['totalMinionsKilled'];
+                $csm = $participant['totalMinionsKilled'] / ($gameTime / 60);
+                $kp = $participant['challenges']['killParticipation'];
+                $vs = $participant['visionScore'];
+                echo $kp . '\n';
+                $kd = round($kd, 2);
+                $kad = round($kad, 2);
+                $csm = round($csm, 2);
+                $kp = round($kp, 4) * 100;
+                echo $kp . '\n';
                 $playerStats[] = array(
                     'PlayerName' => $playerName,
                     'Kills' => $kills,
                     'Deaths' => $deaths,
                     'Assists' => $assists,
+                    'K/D' => $kd,
+                    'K/D/A' => $kad,
+                    'CS' => $cs,
+                    'CSM' => $csm,
+                    'VS' => $vs,
+                    'KP' => $kp,
                 );
             } else {
                 // PUUID is not in the database, check if the player name exists
@@ -368,7 +385,7 @@ foreach ($data as $participant) {
     $kad = $participant['kills'] + $participant['assists']) / $participant['deaths']
     needs calc
     $cs = $participant['totalMinionsKilled']
-    $csm = $participant['totalMinionsKilled'] / ($participant['gameDuration'] (needs further calc)
+    $csm = $participant['totalMinionsKilled'] / ($participant['gameDuration'] / 60);
     $participant['totalDamageDealt'] add to db total, the divide by games
     $participant['damagePerMinute']  add to db total, the divide by games
     $participant['visionScore'] add to db total

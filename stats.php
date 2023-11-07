@@ -144,6 +144,20 @@ if($_SESSION['isadmin'] == TRUE) {
                             echo '<td>' . $playerStats['Kills'] . "</td>";
                             echo '<td>' . $playerStats['Deaths'] . "</td>";
                             echo '<td>' . $playerStats['Assists'] . "</td>";
+                            echo '<td></td>';
+                            echo '<td></td>';
+                            echo '<td></td>';
+                            echo '<td>' . $playerStats['K/D'] . "</td>";
+                            echo '<td>' . $playerStats['K/D/A'] . "</td>";
+                            echo '<td></td>';
+                            echo '<td>' . $playerStats['CS'] . "</td>";
+                            echo '<td>' . $playerStats['CSM'] . "</td>";
+                            echo '<td></td>';
+                            echo '<td></td>';
+                            echo '<td></td>';
+                            echo '<td>' . $playerStats['VS'] . "</td>";
+                            echo '<td></td>';
+                            echo '<td>' . $playerStats['KP'] . "%</td>";
                             echo '</tr>';
                         }
                     }
