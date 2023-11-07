@@ -88,12 +88,11 @@ if($_SESSION['isadmin'] == TRUE) {
                         echo "<pre>"; // Use <pre> tag for a more readable output
                         // print_r($results); // Use print_r to display the array contents
                         $playerName = getPlayerNamesFromMatch($matchId, $riotToken, $conn);
-                        $playerKDA = getPlayerKDAFromMatch($matchId, $riotToken, $conn);
-                        foreach ($playerKDA as $playerStats) {
+                        $_SESSION['playerKDA'] = getPlayerKDAFromMatch($matchId, $riotToken, $conn);
+                        echo "Retrieved data for: \n";
+                        foreach ($_SESSION['playerKDA'] as $playerStats) {
                             echo 'Player: ' . $playerStats['PlayerName'] . "\n";
-                            echo 'Kills: ' . $playerStats['Kills'] . "\n";
-                            echo 'Deaths: ' . $playerStats['Deaths'] . "\n";
-                            echo 'Assists: ' . $playerStats['Assists'] . "\n\n";
+                            
                         }
 
                         echo "</pre>";
@@ -136,9 +135,19 @@ if($_SESSION['isadmin'] == TRUE) {
                     <th>VS/M</th>
                     <th>K/P</th>
                 </tr>
-                <tr>
-                    <td></td>
-                </tr>
+                <?php
+                    if (isset($_POST['submit'])) {
+                        foreach ($_SESSION['playerKDA'] as $playerStats) {
+                            
+                            echo '<tr>';
+                            echo '<td>' . $playerStats['PlayerName'] . "</td>";
+                            echo '<td>' . $playerStats['Kills'] . "</td>";
+                            echo '<td>' . $playerStats['Deaths'] . "</td>";
+                            echo '<td>' . $playerStats['Assists'] . "</td>";
+                            echo '</tr>';
+                        }
+                    }
+                ?>
             </table>
         </div>
     </div>

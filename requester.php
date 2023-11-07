@@ -302,7 +302,7 @@ function getExistingNamesFromDatabase($conn) {
 function getPlayerKDAFromMatch($matchId, $riotToken, $conn) {
     // Get match data using your function to fetch data from the Riot API
     $matchData = getMatchData($matchId, $riotToken);
-
+    print_r($matchData);
     // Check if the 'participants' key exists in the match data
     if (isset($matchData['info']['participants'])) {
         $participants = $matchData['info']['participants'];
@@ -352,3 +352,32 @@ function getPlayerKDAFromMatch($matchId, $riotToken, $conn) {
 
 
 // need to know current rank, last season peak rank, account level, games played this season/split
+
+
+// data paths
+/*
+$data = $matchData['info']['participants']
+foreach ($data as $participant) {
+    $participant['kills']
+    $participant['deaths']
+    $participant['assists']
+    needs calc
+    needs calc
+    needs calc
+    $kd = $participant['kills'] / $participant['deaths']
+    $kad = $participant['kills'] + $participant['assists']) / $participant['deaths']
+    needs calc
+    $cs = $participant['totalMinionsKilled']
+    $csm = $participant['totalMinionsKilled'] / ($participant['gameDuration'] (needs further calc)
+    $participant['totalDamageDealt'] add to db total, the divide by games
+    $participant['damagePerMinute']  add to db total, the divide by games
+    $participant['visionScore'] add to db total
+    $participant['visionScorePerMinute']
+    $participant['killParticipation']
+ 
+
+}
+
+
+
+*/
