@@ -27,14 +27,15 @@ if($_SESSION['isadmin'] == TRUE) {
         <title>Dashboard</title>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
-        <link rel="stylesheet" href="styles/tournament.css">
+        <link rel="stylesheet" href="styles/stats.css">
     </head>
     <body style="overflow-x: hidden;">
     <nav class="navbar bg-dark navbar-dark">
             <div class="container-fluid" >
                 <a class="navbar-brand" href="/dashboard.php">Dashboard</a>
 
-                <div class="tab active" onclick="openTab('generalStatsView')">Overall Stats</div>
+                <div class="tab active" onclick="openTab('statGen')">Generate Stats</div>
+                <div class="tab" onclick="openTab('generalStatsView')">Overall Stats</div>
                 <div class="tab" onclick="openTab('draftOrganization')">Draft Stats</div>
                 <!-- <div class="tab" onclick="openTab('teamOrganization')">Team Organization</div>
                 <div class="tab" onclick="openTab('teamOrganization')">Team Organization</div> -->
@@ -61,18 +62,7 @@ if($_SESSION['isadmin'] == TRUE) {
         
     <div id="tabs">
 
-        <div id="content">
-            <div id="draftOrganizationContent" class="tabContent" style="display: none;">
-            <!-- Content for the Setup View tab -->
-            <h2>Draft View</h2>
-            <p>This is the Draft View content.</p>
-            <p>Specific data for Draft View goes here.</p>
-            
-            </div>
-
-        </div>
-
-        <div class="tabContent" id="generalStatsViewContent" style="display: block">
+        <div class="tabContent" id="statGenContent" style="display: block;">
             <form method="post">
                 <label for="matchId">Match ID:</label>
                 <input type="text" id="matchId" name="matchId" required>
@@ -98,16 +88,58 @@ if($_SESSION['isadmin'] == TRUE) {
                         echo "<pre>"; // Use <pre> tag for a more readable output
                         // print_r($results); // Use print_r to display the array contents
                         $playerName = getPlayerNamesFromMatch($matchId, $riotToken, $conn);
-                        print_r($playerName);
+                        $playerKDA = getPlayerKDAFromMatch($matchId, $riotToken, $conn);
+                        foreach ($playerKDA as $playerStats) {
+                            echo 'Player: ' . $playerStats['PlayerName'] . "\n";
+                            echo 'Kills: ' . $playerStats['Kills'] . "\n";
+                            echo 'Deaths: ' . $playerStats['Deaths'] . "\n";
+                            echo 'Assists: ' . $playerStats['Assists'] . "\n\n";
+                        }
 
-                        echo "Kills: " . $results['info']['participants']['0']['kills'] . "\n";
-                        echo "Deaths " . $results['info']['participants']['0']['deaths'] . "\n";
-                        echo "Assists: " . $results['info']['participants']['0']['assists'] . "\n";
                         echo "</pre>";
                     }
                 }
             
             ?>
+            
+        </div>
+
+
+        <div class="tabContent" id="draftOrganizationContent" style="display: none;">
+            <!-- Content for the Setup View tab -->
+            <h2>Draft View</h2>
+            <p>This is the Draft View content.</p>
+            <p>Specific data for Draft View goes here.</p>
+            
+        </div>
+
+
+        <div class="tabContent col-md-10" id="generalStatsViewContent" style="display: none">
+            <table class="table table-hover table-striped player-table">
+                <tr>
+                    <th>Player Name</th>
+                    <th>Kills</th>
+                    <th>Deaths</th>
+                    <th>Assists</th>
+                    <th>AVG Kills</th>
+                    <th>AVG Deaths</th>
+                    <th>AVG Assists</th>
+                    <th>K/D</th>
+                    <th>(K+A)/D</th>
+                    <th>Games</th>
+                    <th>CS</th>
+                    <th>CS/M</th>
+                    <th>CS/G</th>
+                    <th>DM/G</th>
+                    <th>DPM</th>
+                    <th>Vision Score</th>
+                    <th>VS/M</th>
+                    <th>K/P</th>
+                </tr>
+                <tr>
+                    <td></td>
+                </tr>
+            </table>
         </div>
     </div>
         

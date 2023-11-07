@@ -1,7 +1,5 @@
 <?php
 
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
 function getSummonerRank($summonerName, $apiKey) {
     // API endpoint for getting a summoner's ID
     $summonerUrl = "https://na1.api.riotgames.com/lol/summoner/v4/summoners/by-name/" . rawurlencode(htmlspecialchars(strip_tags($summonerName))) . "?api_key=" . $apiKey;
@@ -87,6 +85,7 @@ function getMatchData($matchId, $riotToken) {
     return $decodedOutput;
 }
 
+// not in use
 function getPlayerNamesFromMatch($matchId, $riotToken, $conn) {
     $matchData = getMatchData($matchId, $riotToken);
     if (isset($matchData['metadata']['participants'])) {
@@ -145,7 +144,7 @@ function getExistingPuuidsFromDatabase($conn) {
 
 
 // Function to get player name from the database
-function getPlayerNameFromDatabase($conn, $puuid) {
+function getPlayerNameFromDatabaseByPuuid($conn, $puuid) {
     // Assuming you have a table named "players" with columns "puuid" and "name" in your database
 
     $query = "SELECT name FROM players WHERE puuid = ?";
@@ -181,6 +180,21 @@ function getPlayerNameFromDatabase($conn, $puuid) {
 }
 
 
+
+// return example for below function:
+/* 
+
+{
+   "accountId" : "ArxniEVUSK39aNLwiYG7SeSsCDkpKwD1N0c5QEDjhLze_dHxL9qR6FxB",
+   "id" : "bj0sUF7F5hafFgUxF00j9UfgVxqRE-GH8dR9_K-ZzgjXurKM",
+   "name" : "iEnders",
+   "profileIconId" : 6334,
+   "puuid" : "MOhvcokrRxJSRpGM-y3AVBQ0glnSrXHW-Y_fE6zHGXBPiY1SP6dKjIFQK0RFLXVgkdPdmxyHcsy-Yg",
+   "revisionDate" : 1699288659424,
+   "summonerLevel" : 692
+}
+
+*/
 function getPlayerDataFromPuuid($puuid, $riotToken) {
     $url = "https://na1.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/$puuid";
     $headers = [
@@ -216,6 +230,9 @@ function getPlayerDataFromPuuid($puuid, $riotToken) {
     return $decodedOutput;
 }
 
+// check if a player name exists in database,
+// if it does then set the puuid to the one found for the name
+
 function storePlayerDataInDatabase($conn, $puuid, $playerName) {
     // You should replace 'your_table_name' with the actual table name in your database.
     $tableName = 'players';
@@ -228,7 +245,6 @@ function storePlayerDataInDatabase($conn, $puuid, $playerName) {
     $stmt->execute();
     $result = $stmt->get_result();
 
-    // If the PUUID already exists, update the associated player name.
     if ($result->num_rows > 0) {
         $updateSql = "UPDATE $tableName SET puuid = ? WHERE name = ?";
         $updateStmt = $conn->prepare($updateSql);
@@ -237,7 +253,100 @@ function storePlayerDataInDatabase($conn, $puuid, $playerName) {
     }
 }
 
+function updatePuuidForExistingName($conn, $playerName, $puuid) {
+    // Assuming you have a table named "players" with columns "puuid" and "name" in your database
 
+    // Define the SQL query to update the PUUID for the existing player name
+    $sql = "UPDATE players SET puuid = ? WHERE name = ?";
+
+    // Prepare the query
+    $stmt = $conn->prepare($sql);
+
+    if ($stmt) {
+        // Bind the parameters (PUUID and player name)
+        $stmt->bind_param("ss", $puuid, $playerName);
+
+        // Execute the update query
+        $stmt->execute();
+
+        // Close the statement
+        $stmt->close();
+    }
+}
+
+
+function getExistingNamesFromDatabase($conn) {
+    $existingNames = array();
+
+    // Assuming you have a table named "players" with a "name" column in your database
+
+    // Define the SQL query to retrieve existing player names
+    $sql = "SELECT name FROM players";
+
+    // Execute the query
+    $result = mysqli_query($conn, $sql);
+
+    if ($result) {
+        while ($row = mysqli_fetch_assoc($result)) {
+            $existingNames[] = $row['name'];
+        }
+    }
+
+    return $existingNames;
+}
+
+
+
+// returns all player names, kills, deaths, assists from match
+
+function getPlayerKDAFromMatch($matchId, $riotToken, $conn) {
+    // Get match data using your function to fetch data from the Riot API
+    $matchData = getMatchData($matchId, $riotToken);
+
+    // Check if the 'participants' key exists in the match data
+    if (isset($matchData['info']['participants'])) {
+        $participants = $matchData['info']['participants'];
+
+        // Initialize arrays to store player statistics
+        $playerStats = array();
+
+        // Check the database for existing PUUIDs and names
+        $existingPuuids = getExistingPuuidsFromDatabase($conn);
+        $existingNames = getExistingNamesFromDatabase($conn);
+
+        foreach ($participants as $participant) {
+            $puuid = $participant['puuid'];
+            $playerName = $participant['summonerName'];
+
+            // Check if the PUUID is in the database
+            if (in_array($puuid, $existingPuuids)) {
+                // Player exists by PUUID in the database; you can retrieve additional data as needed
+
+                $kills = $participant['kills'];
+                $deaths = $participant['deaths'];
+                $assists = $participant['assists'];
+
+                $playerStats[] = array(
+                    'PlayerName' => $playerName,
+                    'Kills' => $kills,
+                    'Deaths' => $deaths,
+                    'Assists' => $assists,
+                );
+            } else {
+                // PUUID is not in the database, check if the player name exists
+                if (in_array($playerName, $existingNames)) {
+                    // Player name exists in the database, update the row with the PUUID
+                    updatePuuidForExistingName($conn, $playerName, $puuid);
+                }
+            }
+        }
+
+        // Return the array of player statistics
+        return $playerStats;
+    } else {
+        return [];
+    }
+}
 
 
 

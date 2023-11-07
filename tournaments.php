@@ -227,18 +227,18 @@ function calculateGameInfo($conn) {
 
         <div id="tabs">
             
-            <div id="content">
-                <div id="draftOrganizationContent" class="tabContent" style="display: none;">
-                    <!-- Content for the Setup View tab -->
-                    <h2>Draft View</h2>
-                    <p>This is the Draft View content.</p>
-                    <p>Specific data for Draft View goes here.</p>
-                </div>
+
+            <div id="draftOrganizationContent" class="tabContent" style="display: none;">
+                <!-- Content for the Setup View tab -->
+                <h2>Draft View</h2>
+                <p>This is the Draft View content.</p>
+                <p>Specific data for Draft View goes here.</p>
             </div>
+            
 
 
             <div class="tabContent" id="signupViewContent" style="display: block">
-                <div class="col-md-7" style="margin: auto">
+                <div class="col-md-7" style="margin: auto; margin-top: 40px;">
                     <table class="table table-striped ">
                         <tr>
                             <th>Player Count</th>
