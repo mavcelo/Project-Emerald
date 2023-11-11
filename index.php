@@ -65,6 +65,7 @@ if(isset($_POST['submit'])) {
 
       if($_SESSION['username'] == 'admin') {
         $_SESSION['isadmin'] = TRUE;
+        $_SESSION['riotApiKey'] = getenv('RIOT_API_KEY');
       } else {
         $_SESSION['isadmin'] = FALSE;
       }
