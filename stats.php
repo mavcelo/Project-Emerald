@@ -48,7 +48,7 @@ if($_SESSION['isadmin'] == TRUE) {
                 <div class="collapse navbar-collapse" id="collapsibleNavbar">
                     <ul class="navbar-nav">
                         <li class="nav-item">
-                            <a class="nav-link" style="text-align:right" href="stats.php">Stats</a>
+                            <a class="nav-link" style="text-align:right" href="tournaments.php">Tournaments</a>
                             <a class="nav-link" style="text-align:right" href="players.php">Players</a>
                             <a class="nav-link" style="text-align:right" href="logout.php">Logout</a>
                         </li>
@@ -67,18 +67,15 @@ if($_SESSION['isadmin'] == TRUE) {
                 <label for="matchId">Match ID:</label>
                 <input type="text" id="matchId" name="matchId" required>
                 <br>
-                <label for="riotToken">Riot Token:</label>
-                <input type="text" id="riotToken" name="riotToken" required>
-                <br>
                 <button name="submit" type="submit">Get Match Data</button>
             </form>
 
             
             <?php 
+            $riotToken = $_SESSION['riotApiKey'];
             // get vds stats here
                 if (isset($_POST['submit'])) {
                     $matchId = htmlspecialchars($_POST['matchId']);
-                    $riotToken = htmlspecialchars($_POST['riotToken']);
                     
                     $results = getMatchData($matchId, $riotToken);
                 
