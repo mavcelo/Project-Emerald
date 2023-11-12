@@ -78,7 +78,7 @@ function populateRoleDiv($conn, $role) {
             $user = $row["name"];
             $url = "'https://www.op.gg/summoners/na/".urlencode($user)."'";
             echo "
-                <td value='$user' onclick=location.href=$url>$user</td>
+                <td value='$user' class='draggable' onclick=location.href=$url>$user</td>
             ";
             echo "<td>" . $row["rank"] . "</td>";
             echo "<td>" . $row["role_preferred"] . "</td>";
@@ -185,7 +185,8 @@ function calculateGameInfo($conn) {
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+        <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta http-equiv="X-UA-Compatible" content="ie=edge">
@@ -229,10 +230,40 @@ function calculateGameInfo($conn) {
             
 
             <div id="draftOrganizationContent" class="tabContent" style="display: none;">
-                <!-- Content for the Setup View tab -->
-                <h2>Draft View</h2>
-                <p>This is the Draft View content.</p>
-                <p>Specific data for Draft View goes here.</p>
+                
+
+                <!-- Updated HTML Structure -->
+                <div class="team-container">
+                    <h2>Team Name</h2>
+                    <table class="team-table" id="team-Tigers" data-roles="top,jungle,mid,adc,support">
+                        <!-- Table content goes here -->
+                    </table>
+                </div>
+
+                <div class="role-div">
+                    <div class="team-container col-md-2" id="Tigers" >
+                        <h2>Tigers</h2>
+                        <table class="team-table table table-striped" data-roles="top,jungle,mid,adc,support" id="team-Tigers">
+                            <tr>
+                                <th>Player</th>
+                                <th>Role</th>
+                            </tr>
+                            <tr>
+                                
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            
+            
+                <div class="container-fluid justify-content-between align-items-end" id="signupViewContentTables" style="display: flex">
+                    <?php
+                        $roles = array("top", "jungle", "mid", "adc", "support");
+                        foreach ($roles as $role) {
+                            populateRoleDiv($conn, $role); // Call the function to populate the div for each role
+                        }
+                    ?>
+                </div> 
             </div>
             
 
@@ -278,12 +309,12 @@ function calculateGameInfo($conn) {
                 </div>
                 
                 <div class="container-fluid justify-content-between align-items-end" id="signupViewContentTables" style="display: flex">
-                <?php
-                $roles = array("top", "jungle", "mid", "adc", "support");
-                foreach ($roles as $role) {
-                    populateRoleDiv($conn, $role); // Call the function to populate the div for each role
-                }
-                ?>
+                    <?php
+                        $roles = array("top", "jungle", "mid", "adc", "support");
+                        foreach ($roles as $role) {
+                            populateRoleDiv($conn, $role); // Call the function to populate the div for each role
+                        }
+                    ?>
                 </div>                
             </div>
         </div>
@@ -314,6 +345,84 @@ function calculateGameInfo($conn) {
 
             // Log the value of tabContentElement to the console
         }
+
+ // start drag/drop feature
+
+// Updated JavaScript
+        document.addEventListener('DOMContentLoaded', function () {
+            const players = document.querySelectorAll('.role-div td');
+            const teamContainers = document.querySelectorAll('.team-container');
+
+            players.forEach(player => {
+                player.setAttribute('draggable', 'true');
+                player.addEventListener('dragstart', handleDragStart);
+            });
+
+            teamContainers.forEach(teamContainer => {
+                teamContainer.addEventListener('dragover', handleDragOver);
+                teamContainer.addEventListener('drop', handleDrop);
+            });
+        });
+
+        function handleDragStart(event) {
+            const playerName = event.target.textContent;
+            const playerRole = event.target.parentElement.lastElementChild.textContent;
+            const draggedData = JSON.stringify({ playerName, playerRole });
+
+            event.dataTransfer.setData('text/plain', draggedData);
+        }
+
+        function handleDragOver(event) {
+            event.preventDefault();
+        }
+
+        function handleDrop(event) {
+            event.preventDefault();
+            const teamTable = event.currentTarget.querySelector('.team-table');
+            const teamName = teamTable.id.split('-')[1];
+            const rolesNeeded = teamTable.dataset.roles.split(',');
+
+            const draggedData = event.dataTransfer.getData('text/plain');
+            const { playerName, playerRole } = JSON.parse(draggedData);
+
+            // Check if the player is already in the team
+            if (isPlayerInTeam(teamTable, playerName)) {
+                alert('Player is already in the team.');
+                return;
+            }
+
+            // Check if the role is needed
+            if (!rolesNeeded.includes(playerRole.toLowerCase().trim())) {
+                alert('Invalid role for this team. Role: ' + playerRole + ', Needed Roles: ' + rolesNeeded.join(', '));
+                return;  // Add this line to prevent further execution if the role is invalid
+            }
+
+            // Insert the player and role into the team table
+            const newRow = teamTable.insertRow();
+            const cellName = newRow.insertCell();
+            const cellRole = newRow.insertCell();
+
+            cellName.textContent = playerName;
+            cellRole.textContent = playerRole;
+
+            // Update remaining roles
+            updateRemainingRoles(teamTable, rolesNeeded);
+        }
+
+
+        function isPlayerInTeam(teamTable, playerName) {
+            const playerNames = Array.from(teamTable.querySelectorAll('td:first-child')).map(cell => cell.textContent.trim());
+            return playerNames.includes(playerName);
+        }
+
+        function updateRemainingRoles(teamTable, rolesNeeded) {
+            const playerRoles = Array.from(teamTable.querySelectorAll('td:last-child')).map(cell => cell.textContent.trim().toLowerCase());
+            const remainingRoles = rolesNeeded.filter(role => !playerRoles.includes(role));
+
+            // Display remaining roles
+            alert('Remaining Roles: ' + remainingRoles.join(', '));
+        }
+
     </script>
 
 </html>

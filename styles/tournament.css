@@ -30,3 +30,17 @@
     flex-grow: 1;
     overflow-y: auto;
 }
+
+/* Add a style for the team container */
+.team-container {
+    margin: 20px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+/* Add a style for the remaining roles info */
+#remaining-roles-info {
+    margin-top: 10px;
+    font-style: italic;
+}
