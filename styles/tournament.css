@@ -26,18 +26,18 @@
 
 .table-container {
     position: absolute;
-    top: 400px;
+    padding-top: 100px;
     flex-grow: 1;
     overflow-y: auto;
 }
 
 /* Add a style for the team container */
 .team-container {
-    margin: 20px;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
+    padding-top: 30px;
+    flex-grow: 1;
+    overflow-y: auto;
 }
+
 
 /* Add a style for the remaining roles info */
 #remaining-roles-info {

@@ -4,8 +4,31 @@ function getSummonerRank($summonerName, $apiKey) {
     // API endpoint for getting a summoner's ID
     $summonerUrl = "https://na1.api.riotgames.com/lol/summoner/v4/summoners/by-name/" . rawurlencode(htmlspecialchars(strip_tags($summonerName))) . "?api_key=" . $apiKey;
 
-    // Send a request to get the summoner's ID
-    $response = file_get_contents($summonerUrl);
+    $contextOptions = [
+        "ssl" => [
+            "verify_peer" => false,
+            "verify_peer_name" => false,
+        ],
+    ];
+
+    $context = stream_context_create($contextOptions);
+
+    try {
+        // Attempt to fetch the data with the specified context
+        $response = file_get_contents($summonerUrl, false, $context);
+
+        if ($response === false) {
+            // Handle the case where file_get_contents() fails
+            throw new Exception("Unable to get RIOT data");
+        }
+
+        // Process the response here
+
+    } catch (Exception $e) {
+        // Handle the exception
+        echo "Error: " . $e->getMessage();
+    }
+
 
     if ($response) {
         $summonerData = json_decode($response, true);
