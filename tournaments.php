@@ -16,6 +16,10 @@ if($_SESSION['isadmin'] == TRUE) {
     $guestoradmin = 'Guest';
 }
 
+
+
+
+
 // Check if the form is submitted to handle selected teams
 if (isset($_POST['remove_teams'])) {
     // Get the selected teams from the form
@@ -507,9 +511,9 @@ if (isset($_POST['add_team'])) {
                         </div>
 
                         <div class="col-md-2">
-                            <div class="team-container" id="BlackWidows">
+                            <div class="team-container" id="Black Widows">
                                 <h4>Black Widows</h4>
-                                <table class="team-table table table-striped" data-roles="top,jungle,mid,adc,support" id="team-BlackWidows">
+                                <table class="team-table table table-striped" data-roles="top,jungle,mid,adc,support" id="team-Black Widows">
                                     <tr>
                                         <th>Player</th>
                                         <th>Role</th>
@@ -700,6 +704,8 @@ if (isset($_POST['add_team'])) {
 
         // Updated JavaScript
         document.addEventListener('DOMContentLoaded', function () {
+            
+
             const players = document.querySelectorAll('.role-div td');
             const teamContainers = document.querySelectorAll('.team-container');
 
@@ -712,6 +718,29 @@ if (isset($_POST['add_team'])) {
                 teamContainer.addEventListener('dragover', handleDragOver);
                 teamContainer.addEventListener('drop', handleDrop);
             });
+
+            const xhr = new XMLHttpRequest();
+            const url = '/getTeams.php'; // Adjust the path if needed
+
+            xhr.open('GET', url, true);
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        const teamData = JSON.parse(xhr.responseText);
+
+                        // Populate team tables for each team
+                        teamData.forEach(team => {
+                            populateTeamTable(team.team_id);
+                        });
+                    } else {
+                        console.error('Error fetching teams:', xhr.status, xhr.statusText);
+                    }
+                }
+            };
+
+            xhr.send();
+
+            
         });
 
         function handleDragStart(event) {
@@ -871,6 +900,52 @@ if (isset($_POST['add_team'])) {
             alert('Remaining Roles: ' + remainingRoles.join(', '));
 
         
+        }
+
+        function populateTeamTable(teamName) {
+            const xhr = new XMLHttpRequest();
+            const url = `/getPlayersByTeam.php?team_id=${encodeURIComponent(teamName)}`;
+
+            xhr.open('GET', url, true);
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        const players = JSON.parse(xhr.responseText);
+                        populateTableWithPlayers(players, teamName);
+                    } else {
+                        console.error('Error fetching players:', xhr.status, xhr.statusText);
+                    }
+                }
+            };
+
+            xhr.send();
+        }
+
+        // Function to populate the team table with players
+        function populateTableWithPlayers(players, teamName) {
+            const teamTable = document.getElementById(`team-${teamName}`);
+
+            // Check if the teamTable is null
+            if (!teamTable) {
+                console.error(`Team table with ID team-${teamName} not found.`);
+                return;
+            }
+
+            // Clear the existing content
+            for (let i = teamTable.rows.length - 1; i > 0; i--) {
+                teamTable.deleteRow(i);
+            }
+
+            // Populate the table with players
+            players.forEach(player => {
+                const newRow = teamTable.insertRow();
+                const cellName = newRow.insertCell();
+                const cellRole = newRow.insertCell();
+                
+
+                cellName.textContent = player.name;
+                cellRole.textContent = player.role;
+            });
         }
 
     </script>
