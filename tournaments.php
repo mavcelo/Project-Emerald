@@ -25,48 +25,63 @@ if (isset($_POST['remove_teams'])) {
     // Get the selected teams from the form
     $selectedTeams = isset($_POST['selected_teams']) ? $_POST['selected_teams'] : [];
 
-
-
     if (!empty($selectedTeams)) {
-        // Prepare a placeholder string for the IN clause based on the number of selected teams
-        $placeholders = implode(',', array_fill(0, count($selectedTeams), '?'));
-        
-        // Prepare the SQL statement to delete selected teams from the database
-        $sql = "DELETE FROM teams WHERE team_id IN ($placeholders)";
-
-        // Create a prepared statement
-        $stmt = mysqli_prepare($conn, $sql);
-
-        // Bind parameters
-        $paramType = str_repeat('s', count($selectedTeams)); // Assuming team_id is an integer, adjust if needed
-        $params = array(&$stmt, $paramType);
-        foreach ($selectedTeams as &$teamId) {
-            $teamId = htmlspecialchars(strip_tags($teamId));
-            $params[] = &$teamId;
+        // Check if there are players assigned to any of the selected teams
+        $teamsWithPlayers = [];
+        foreach ($selectedTeams as $teamId) {
+            $checkPlayerResult = $conn->query("SELECT COUNT(*) as count FROM players WHERE team_id = '$teamId'");
+            $checkPlayerRow = $checkPlayerResult->fetch_assoc();
+            if ($checkPlayerRow['count'] > 0) {
+                $teamsWithPlayers[] = $teamId;
+            }
         }
 
-        
-        call_user_func_array('mysqli_stmt_bind_param', $params);
+        if (!empty($teamsWithPlayers)) {
+            // Display a message indicating teams with players cannot be removed
+            echo "Cannot remove the following teams because players are still assigned to them: " . implode(', ', $teamsWithPlayers);
+        } else {
+            // Prepare a placeholder string for the IN clause based on the number of selected teams
+            $placeholders = implode(',', array_fill(0, count($selectedTeams), '?'));
 
-        // Execute the statement
-        $success = mysqli_stmt_execute($stmt);
+            // Prepare the SQL statement to delete selected teams from the database
+            $sql = "DELETE FROM teams WHERE team_id IN ($placeholders)";
 
-        // Check if the deletion was successful
-        if (!$success) {
-            echo "Error removing selected teams: " . mysqli_error($conn);
+            // Create a prepared statement
+            $stmt = mysqli_prepare($conn, $sql);
+
+            // Bind parameters
+            $paramType = str_repeat('s', count($selectedTeams)); // Assuming team_id is an integer, adjust if needed
+            $params = array(&$stmt, $paramType);
+            foreach ($selectedTeams as &$teamId) {
+                $teamId = htmlspecialchars(strip_tags($teamId));
+                $params[] = &$teamId;
+            }
+
+            call_user_func_array('mysqli_stmt_bind_param', $params);
+
+            // Execute the statement
+            $success = mysqli_stmt_execute($stmt);
+
+            // Check if the deletion was successful
+            if (!$success) {
+                echo "Error removing selected teams: " . mysqli_error($conn);
+            }
+
+            // Close the prepared statement
+            mysqli_stmt_close($stmt);
+            
+            
         }
-
-        // Close the prepared statement
-        mysqli_stmt_close($stmt);
-        echo '<script>
-            document.addEventListener("DOMContentLoaded", function() {
-                openTab("teamSetup");
-            });
-          </script>';
     } else {
         echo "No teams selected for removal.";
     }
+    echo '<script>
+                document.addEventListener("DOMContentLoaded", function() {
+                    openTab("teamSetup");
+                });
+            </script>';
 }
+
 
 
 
