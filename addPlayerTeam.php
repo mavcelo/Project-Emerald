@@ -2,8 +2,11 @@
 include './db_config.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $playerName = $_POST['playerName'];
-    $teamName = $_POST['teamName'];
+    $playerName = urldecode($_POST['playerName']);
+    $teamName = urldecode($_POST['teamName']);
+
+    $playerName = htmlspecialchars(strip_tags($playerName));
+    $teamName = htmlspecialchars(strip_tags($teamName));
 
     // Update the player's team_id in the players table
     $sql = "UPDATE players SET team_id = ? WHERE name = ?";
