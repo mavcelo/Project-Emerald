@@ -448,188 +448,43 @@ if (isset($_POST['add_team'])) {
     
             <div id="draftOrganizationContent" class="tabContent" style="display: none;">
                 <h2 style="margin: auto;text-align:center">Assign Teams</h4>
-                <div class="container-fluid">
-                    <div class="row">
-                        <div class="col-md-2" >
-                            <div class="team-container" id="Tigers">
-                            <h4>Tigers</h4>
-                                <table class="team-table table table-striped" data-roles="top,jungle,mid,adc,support" id="team-Tigers">
-                                    <tr>
-                                        <th>Player</th>
-                                        <th>Role</th>
-                                    </tr>
-                                    <tr>
-                                        
-                                    </tr>
-                                </table>
-                            </div>
-                        </div>
+                <?php
+                    // Fetch team names from the database (adjust the query based on your database structure)
+                    $result = mysqli_query($conn, "SELECT DISTINCT team_id FROM teams");
+                    
+                    // Check if teams are available
+                    if (mysqli_num_rows($result) > 0) {
+                        $count = 0; // Counter to keep track of teams in a row
 
-                        <div class="col-md-2">
-                            <div class="team-container" id="Sharks">
-                                <h4>Sharks</h4>
-                                <table class="team-table table table-striped" data-roles="top,jungle,mid,adc,support" id="team-Sharks">
-                                    <tr>
-                                        <th>Player</th>
-                                        <th>Role</th>
-                                    </tr>
-                                    <tr>
-                                        
-                                    </tr>
-                                </table>
-                            </div>
-                        </div>
-
-                        <div class="col-md-2">
-                            <div class="team-container" id="Boas">
-                                <h4>Boas</h4>
-                                <table class="team-table table table-striped" data-roles="top,jungle,mid,adc,support" id="team-Boas">
-                                    <tr>
-                                        <th>Player</th>
-                                        <th>Role</th>
-                                    </tr>
-                                    <tr>
-                                        
-                                    </tr>
-                                </table>
-                            </div>
-                        </div>
-
-                        <div class="col-md-2">
-                            <div class="team-container" id="Cougars">
-                                <h4>Cougars</h4>
-                                <table class="team-table table table-striped" data-roles="top,jungle,mid,adc,support" id="team-Cougars">
-                                    <tr>
-                                        <th>Player</th>
-                                        <th>Role</th>
-                                    </tr>
-                                    <tr>
-                                        
-                                    </tr>
-                                </table>
-                            </div>
-                        </div>
-
-                        <div class="col-md-2">
-                            <div class="team-container" id="Black Widows">
-                                <h4>Black Widows</h4>
-                                <table class="team-table table table-striped" data-roles="top,jungle,mid,adc,support" id="team-Black Widows">
-                                    <tr>
-                                        <th>Player</th>
-                                        <th>Role</th>
-                                    </tr>
-                                    <tr>
-                                        
-                                    </tr>
-                                </table>
-                            </div>
-                        </div>
-
-                        <div class="col-md-2">
-                            <div class="team-container" id="Crocs">
-                                <h4>Crocs</h4>
-                                <table class="team-table table table-striped" data-roles="top,jungle,mid,adc,support" id="team-Crocs">
-                                    <tr>
-                                        <th>Player</th>
-                                        <th>Role</th>
-                                    </tr>
-                                    <tr>
-                                        
-                                    </tr>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-2">
-                            <div class="team-container" id="Whales">
-                                <h4>Whales</h4>
-                                <table class="team-table table table-striped" data-roles="top,jungle,mid,adc,support" id="team-Whales">
-                                    <tr>
-                                        <th>Player</th>
-                                        <th>Role</th>
-                                    </tr>
-                                    <tr>
-                                        
-                                    </tr>
-                                </table>
-                            </div>
-                        </div>
-
-                        <div class="col-md-2">
-                            <div class="team-container" id="Warthogs">
-                                <h4>Warthogs</h4>
-                                <table class="team-table table table-striped" data-roles="top,jungle,mid,adc,support" id="team-Warthogs">
-                                    <tr>
-                                        <th>Player</th>
-                                        <th>Role</th>
-                                    </tr>
-                                    <tr>
-                                        
-                                    </tr>
-                                </table>
-                            </div>
-                        </div>
-                        <div class="col-md-2">
-                            <div class="team-container" id="Hyenas">
-                                <h4>Hyenas</h4>
-                                <table class="team-table table table-striped" data-roles="top,jungle,mid,adc,support" id="team-Hyenas">
-                                    <tr>
-                                        <th>Player</th>
-                                        <th>Role</th>
-                                    </tr>
-                                    <tr>
-                                        
-                                    </tr>
-                                </table>
-                            </div>
-                        </div>
-                        <div class="col-md-2">
-                            <div class="team-container" id="Dragons">
-                                <h4>Dragons</h4>
-                                <table class="team-table table table-striped" data-roles="top,jungle,mid,adc,support" id="team-Dragons">
-                                    <tr>
-                                        <th>Player</th>
-                                        <th>Role</th>
-                                    </tr>
-                                    <tr>
-                                        
-                                    </tr>
-                                </table>
-                            </div>
-                        </div>
-                        <div class="col-md-2">
-                            <div class="team-container" id="Bulls">
-                                <h4>Bulls</h4>
-                                <table class="team-table table table-striped" data-roles="top,jungle,mid,adc,support" id="team-Bulls">
-                                    <tr>
-                                        <th>Player</th>
-                                        <th>Role</th>
-                                    </tr>
-                                    <tr>
-                                        
-                                    </tr>
-                                </table>
-                            </div>
-                        </div>
-                        <div class="col-md-2">
-                            <div class="team-container" id="Elks">
-                                <h4>Elks</h4>
-                                <table class="team-table table table-striped" data-roles="top,jungle,mid,adc,support" id="team-Elks">
-                                    <tr>
-                                        <th>Player</th>
-                                        <th>Role</th>
-                                    </tr>
-                                    <tr>
-                                        
-                                    </tr>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                
-                </div>
+                        // Loop through the teams
+                        while ($row = mysqli_fetch_assoc($result)) {
+                            $teamName = $row['team_id'];
+                            // If it's the first team in a row, start a new row
+                            if ($count % 6 == 0) {
+                                echo '<div class="row">';
+                            }
+                            echo '<div class="col-md-2">';
+                            echo '<div class="team-container" id="' . $teamName . '">';
+                            echo '<h4>' . $teamName . '</h4>';
+                            echo '<table class="team-table table table-striped" data-roles="top,jungle,mid,adc,support" id="team-' . $teamName . '">';
+                            echo '<tr><th>Player</th><th>Role</th></tr><tr></tr></table></div></div>';
+                            
+                            // If it's the last team in a row, close the row
+                            if ($count % 6 == 5) {
+                                echo '</div>';
+                            }
+                            $count++;
+                        }
+                        
+                        // If the last row is not closed, close it
+                        if ($count % 6 != 0) {
+                            echo '</div>';
+                        }
+                    } else {
+                        // Display a message if no teams are available
+                        echo '<p>Add Teams</p>';
+                    }
+                ?>
                 <div class="container-fluid justify-content-between align-items-end" id="signupViewContentTables" style="display: flex">
                     <?php
                         $roles = array("top", "jungle", "mid", "adc", "support");
