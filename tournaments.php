@@ -620,6 +620,12 @@ if (isset($_POST['add_team'])) {
             const draggedData = event.dataTransfer.getData('text/plain');
             const { playerName, playerRole } = JSON.parse(draggedData);
 
+            if (isPlayerInAnyTeam(playerName)) {
+                alert('Player is already assigned to a team.');
+                return;
+            }
+
+
             // Check if the role is needed (case-insensitive)
             if (!rolesNeeded.some(role => role.toLowerCase().trim() === playerRole.toLowerCase().trim())) {
                 alert('Invalid role for this team. Role: ' + playerRole + ', Needed Roles: ' + rolesNeeded.join(', '));
