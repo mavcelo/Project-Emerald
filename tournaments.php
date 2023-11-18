@@ -726,11 +726,8 @@ if (isset($_POST['add_team'])) {
             event.preventDefault();
         }
 
+
         function handleDrop(event) {
-
-            const playerId = getPlayerIdByName('<?php $conn; ?>', playerName);
-            const teamId = getTeamIdByName('<?php echo $conn; ?>', teamTable.id);
-
             event.preventDefault();
             const teamTable = event.currentTarget.querySelector('.team-table');
             const teamName = teamTable.id.split('-')[1];
@@ -748,6 +745,7 @@ if (isset($_POST['add_team'])) {
             // Check if the role is already in the team
             if (isRoleInTeam(teamTable, playerRole)) {
                 alert('Role is already in the team.');
+                removePlayerFromTeam(teamTable, playerName);
                 return;
             }
 
@@ -759,13 +757,83 @@ if (isset($_POST['add_team'])) {
             cellName.textContent = playerName;
             cellRole.textContent = playerRole;
 
-            if (playerId !== null) {
-                mysqli_query('<?php $conn; ?>', "UPDATE players SET team_id = $teamId WHERE id = $playerId");
-            }
+            console.log('Player added to team:', playerName, 'Role:', playerRole);
 
+            // Update the player's team_id in the players table
+            addPlayerTeam(playerName, teamName);
 
             // Update remaining roles
             updateRemainingRoles(teamTable, rolesNeeded);
+        }
+
+        function removePlayerFromTeam(teamTable, playerName) {
+            const playerRows = Array.from(teamTable.querySelectorAll('tr'));
+            
+            for (const row of playerRows) {
+                const nameCell = row.querySelector('td:first-child');
+                if (nameCell && nameCell.textContent.trim() === playerName) {
+                    row.remove();
+                    
+                    // Set team_id to null in the players table
+                    removePlayerTeam(playerName);
+                    
+                    console.log('Player removed from team:', playerName);
+
+                    break;
+                }
+            }
+        }
+
+        function addPlayerTeam(playerName, teamName) {
+            // Make an AJAX request to update the player's team_id
+            const xhr = new XMLHttpRequest();
+            const url = '/addPlayerTeam.php'; // Adjust the path if needed
+
+            xhr.open('POST', url, true);
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    const response = JSON.parse(xhr.responseText);
+                    console.log(response);
+
+                    if (response.success) {
+                        console.log('Player team updated successfully!');
+                    } else {
+                        console.error('Error updating player team:', response.error);
+                    }
+                }
+            };
+
+            const data = 'playerName=' + encodeURIComponent(playerName) + '&teamName=' + encodeURIComponent(teamName);
+            xhr.send(data);
+            
+        }
+
+        function removePlayerTeam(playerName) {
+            // Make an AJAX request to update the player's team_id
+            const xhr = new XMLHttpRequest();
+            const url = '/removePlayerTeam.php'; // Adjust the path if needed
+
+            xhr.open('POST', url, true);
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    const response = JSON.parse(xhr.responseText);
+                    console.log(response);
+
+                    if (response.success) {
+                        console.log('Player team updated successfully!');
+                    } else {
+                        console.error('Error updating player team:', response.error);
+                    }
+                }
+            };
+
+            const data = 'playerName=' + encodeURIComponent(playerName);
+            xhr.send(data);
+        
         }
 
 
@@ -789,7 +857,7 @@ if (isset($_POST['add_team'])) {
             }
             return false;
         }
-
+        
         function isPlayerInTeam(teamTable, playerName) {
             const playerNames = Array.from(teamTable.querySelectorAll('td:first-child')).map(cell => cell.textContent.trim());
             return playerNames.includes(playerName);
@@ -801,6 +869,8 @@ if (isset($_POST['add_team'])) {
 
             // Display remaining roles
             alert('Remaining Roles: ' + remainingRoles.join(', '));
+
+        
         }
 
     </script>
