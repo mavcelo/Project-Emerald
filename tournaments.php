@@ -96,23 +96,7 @@ player list. IF not possible, add the players to play in other area on dashboard
 
 */
 
-function getTeamIdByName($conn, $teamName) {
-    $tableName = "teams"; 
-    $teamName = mysqli_real_escape_string($conn, $teamName);
 
-    $sql = "SELECT id FROM $tableName WHERE name = '$teamName'";
-    $result = mysqli_query($conn, $sql);
-
-    if ($result) {
-        $row = mysqli_fetch_assoc($result);
-
-        if ($row) {
-            return $row['id'];
-        }
-    }
-
-    return null;
-}
 
 
 function getPlayerIdByName($conn, $playerName) {
@@ -395,6 +379,12 @@ if (isset($_POST['add_team'])) {
 
 
         <style>
+        body {
+            background: linear-gradient(to right, rgb(182, 244, 146), rgb(51, 139, 147));
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
         .box {
             background-color: #f8f9fa;
             padding: 20px;
@@ -426,7 +416,7 @@ if (isset($_POST['add_team'])) {
                 <div class="box col-md-3" id="users">
                     <form method="post">
                         <div class="form-group">
-                            <label class="text-warning">WARNING: type team names EXACTLY as they should be.</label><br>
+                            <label class="text-danger"><b>WARNING: type team names EXACTLY as they should be.</b></label><br>
                         </div>
                         <div class="form-group">
                             <label for="team_name" class="form-label">Enter Team Name:</label>
@@ -636,7 +626,11 @@ if (isset($_POST['add_team'])) {
             const { playerName, playerRole } = JSON.parse(draggedData);
 
             if (isPlayerInAnyTeam(playerName)) {
-                alert('Player is already assigned to a team.');
+                alert('Player is already assigned to a team. E');
+
+                
+                removePlayerFromTeam(teamTable, playerName);
+
                 return;
             }
 
@@ -773,7 +767,6 @@ if (isset($_POST['add_team'])) {
             const remainingRoles = rolesAllowed.filter(role => !playerRoles.includes(role));
 
             // Display remaining roles
-            alert('Remaining Roles: ' + remainingRoles.join(', '));
 
         
         }

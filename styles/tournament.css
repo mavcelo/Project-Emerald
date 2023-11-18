@@ -6,6 +6,13 @@
     text-decoration: none;
 }
 
+body {
+    background-image: url('img/dash_plants_dark.jpg'); 
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+}
+
 /* Style for the active tab */
 .active {
     background-color: #ddd;

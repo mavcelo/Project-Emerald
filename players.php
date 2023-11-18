@@ -319,7 +319,7 @@ if (isset($_FILES['user_file']) && $_FILES['user_file']['error'] === UPLOAD_ERR_
     <style>
         /* Add custom styles here  */
         body {
-            background-image: url('img/dash_plants_dark.jpg'); /* Set the background image URL */
+            background-image: url('img/dash_plants_dark.jpg'); 
             background-size: cover;
             background-repeat: no-repeat;
             background-attachment: fixed;
