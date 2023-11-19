@@ -269,9 +269,7 @@ function processFileUpload($conn, $formData, $file) {
         return true;
     } catch (Exception $e) {
         // Log the exception to a file or database
-        error_log("An error occurred: " . $e->getMessage());
         echo "An error occurred while processing the file. Please try again later.";
-        echo '<br>' . $e;
     }
 }
 
