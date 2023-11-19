@@ -636,7 +636,7 @@ if (isset($_POST['add_team'])) {
             const { playerName, playerRole } = JSON.parse(draggedData);
 
             if (playerInTeam(playerName) !== false) {
-                let result = confirm('Player is already assigned to team ' + playerInTeam(playerName) + '. Would you like to remove them?');
+                let result = confirm('Player is already assigned to team ' + playerInTeam(playerName) + '. Would you like to move them?');
                 
                 if (result) {
                     const teamTables = document.querySelectorAll('.team-table');
@@ -645,8 +645,19 @@ if (isset($_POST['add_team'])) {
                             removePlayerFromTeam(teamTable, playerName);
                         }
                     }
-                   
+
                 }
+                const newRow = teamTable.insertRow();
+                const cellName = newRow.insertCell();
+                const cellRole = newRow.insertCell();
+
+                var user = encodeURIComponent(playerName);
+                var url = 'https://www.op.gg/summoners/na/' + user;
+
+                cellName.innerHTML = "<td onclick=location.href=" + url + ">" + playerName + "</td>";
+                cellRole.innerHTML = "<td>" + playerRole + "</td>";
+
+                console.log('Player added to team:', playerName, 'Role:', playerRole);
 
                 return;
             }
@@ -680,7 +691,7 @@ if (isset($_POST['add_team'])) {
             console.log('Player added to team:', playerName, 'Role:', playerRole);
 
             // Update the player's team_id in the players table
-            addPlayerTeam(playerName, teamName);
+            addPlayerToTeam(playerName, teamName);
 
             // Update remaining roles
             updateRemainingRoles(teamTable, rolesNeeded);
@@ -704,10 +715,10 @@ if (isset($_POST['add_team'])) {
             }
         }
 
-        function addPlayerTeam(playerName, teamName) {
+        function addPlayerToTeam(playerName, teamName) {
             // Make an AJAX request to update the player's team_id
             const xhr = new XMLHttpRequest();
-            const url = '/addPlayerTeam.php'; // Adjust the path if needed
+            const url = '/addPlayerToTeam.php'; // Adjust the path if needed
 
             xhr.open('POST', url, true);
             xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
