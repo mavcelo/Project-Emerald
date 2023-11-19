@@ -7,7 +7,7 @@ $team_id = htmlspecialchars(strip_tags(urldecode($team_id)));
 
 if ($team_id !== null) {
     // Fetch players for the given team ID
-    $sql = "SELECT `name` FROM players WHERE team_id = ?";
+    $sql = "SELECT `name`, `role_preferred` FROM players WHERE team_id = ?";
     $stmt = $conn->prepare($sql);
 
     if ($stmt) {
