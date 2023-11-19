@@ -29,15 +29,27 @@ if (isset($_POST['remove_teams'])) {
         // Check if there are players assigned to any of the selected teams
         $teamsWithPlayers = [];
         foreach ($selectedTeams as $teamId) {
-            $checkPlayerResult = $conn->query("SELECT COUNT(*) as count FROM players WHERE team_id = '$teamId'");
-            $checkPlayerRow = $checkPlayerResult->fetch_assoc();
-            if ($checkPlayerRow['count'] > 0) {
+            $stmt = $conn->prepare("SELECT COUNT(*) as count FROM players WHERE team_id = ?");
+    
+            // Bind the parameter
+            $stmt->bind_param("s", $teamId);
+            
+            // Execute the statement
+            $stmt->execute();
+            
+            // Get the result
+            $result = $stmt->get_result();
+            
+            // Fetch the count
+            $row = $result->fetch_assoc();
+            if ($row['count'] > 0) {
                 $teamsWithPlayers[] = $teamId;
             }
         }
 
         if (!empty($teamsWithPlayers)) {
             // Display a message indicating teams with players cannot be removed
+            $teamsWithPlayers = htmlspecialchars(strip_tags($teamsWithPlayers));
             echo "Cannot remove the following teams because players are still assigned to them: " . implode(', ', $teamsWithPlayers);
         } else {
             // Prepare a placeholder string for the IN clause based on the number of selected teams
@@ -560,9 +572,7 @@ if (isset($_POST['add_team'])) {
         // Function to open a tab and display its content
         
 
- // start drag/drop feature
 
-        // Updated JavaScript
         document.addEventListener('DOMContentLoaded', function () {
             
 
@@ -625,11 +635,18 @@ if (isset($_POST['add_team'])) {
             const draggedData = event.dataTransfer.getData('text/plain');
             const { playerName, playerRole } = JSON.parse(draggedData);
 
-            if (isPlayerInAnyTeam(playerName)) {
-                alert('Player is already assigned to a team. E');
-
+            if (playerInTeam(playerName) !== false) {
+                let result = confirm('Player is already assigned to team ' + playerInTeam(playerName) + '. Would you like to remove them?');
                 
-                removePlayerFromTeam(teamTable, playerName);
+                if (result) {
+                    const teamTables = document.querySelectorAll('.team-table');
+                    for (const teamTable of teamTables) {
+                        if (isPlayerInTeam(teamTable, playerName)) {
+                            removePlayerFromTeam(teamTable, playerName);
+                        }
+                    }
+                   
+                }
 
                 return;
             }
@@ -644,7 +661,6 @@ if (isset($_POST['add_team'])) {
             // Check if the role is already in the team
             if (isRoleInTeam(teamTable, playerRole)) {
                 alert('Role is already in the team.');
-                removePlayerFromTeam(teamTable, playerName);
                 return;
             }
 
@@ -653,8 +669,13 @@ if (isset($_POST['add_team'])) {
             const cellName = newRow.insertCell();
             const cellRole = newRow.insertCell();
 
-            cellName.textContent = playerName;
-            cellRole.textContent = playerRole;
+           
+
+            var user = encodeURIComponent(playerName);
+            var url = 'https://www.op.gg/summoners/na/' + user;
+
+            cellName.innerHTML = "<td onclick=location.href=" + url + ">" + playerName + "</td>";
+            cellRole.innerHTML = "<td>" + playerRole + "</td>";
 
             console.log('Player added to team:', playerName, 'Role:', playerRole);
 
@@ -747,11 +768,11 @@ if (isset($_POST['add_team'])) {
 
 
 
-        function isPlayerInAnyTeam(playerName) {
+        function playerInTeam(playerName) {
             const teamTables = document.querySelectorAll('.team-table');
             for (const teamTable of teamTables) {
                 if (isPlayerInTeam(teamTable, playerName)) {
-                    return true;
+                    return teamTable.id.split('-')[1];
                 }
             }
             return false;
@@ -810,10 +831,13 @@ if (isset($_POST['add_team'])) {
                 const newRow = teamTable.insertRow();
                 const cellName = newRow.insertCell();
                 const cellRole = newRow.insertCell();
-                
 
-                cellName.textContent = player.name;
-                cellRole.textContent = player.role;
+
+                var user = encodeURIComponent(player.name);
+                var url = 'https://www.op.gg/summoners/na/' + user;
+
+                cellName.innerHTML = "<a onclick=location.href='" + url + "'>" + player.name + "</a>";
+                cellRole.innerHTML = "<a>" + player.role_preferred + "</a>";
             });
         }
 
