@@ -104,19 +104,12 @@ if($_SESSION['isadmin'] == TRUE) {
                     <th>Kills</th>
                     <th>Deaths</th>
                     <th>Assists</th>
-                    <th>AVG Kills</th>
-                    <th>AVG Deaths</th>
-                    <th>AVG Assists</th>
                     <th>K/D</th>
                     <th>(K+A)/D</th>
-                    <th>Games</th>
                     <th>CS</th>
                     <th>CS/M</th>
-                    <th>CS/G</th>
-                    <th>DM/G</th>
                     <th>DPM</th>
                     <th>Vision Score</th>
-                    <th>VS/M</th>
                     <th>K/P</th>
                 </tr>
                 <?php
@@ -128,19 +121,11 @@ if($_SESSION['isadmin'] == TRUE) {
                             echo '<td>' . $playerStats['Kills'] . "</td>";
                             echo '<td>' . $playerStats['Deaths'] . "</td>";
                             echo '<td>' . $playerStats['Assists'] . "</td>";
-                            echo '<td></td>';
-                            echo '<td></td>';
-                            echo '<td></td>';
                             echo '<td>' . $playerStats['K/D'] . "</td>";
                             echo '<td>' . $playerStats['K/D/A'] . "</td>";
-                            echo '<td></td>';
                             echo '<td>' . $playerStats['CS'] . "</td>";
                             echo '<td>' . $playerStats['CSM'] . "</td>";
-                            echo '<td></td>';
-                            echo '<td></td>';
-                            echo '<td></td>';
                             echo '<td>' . $playerStats['VS'] . "</td>";
-                            echo '<td></td>';
                             echo '<td>' . $playerStats['KP'] . "%</td>";
                             echo '</tr>';
                         }

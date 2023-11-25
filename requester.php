@@ -357,7 +357,6 @@ function getPlayerKDAFromMatch($matchId, $riotToken, $conn) {
                 $kad = round($kad, 2);
                 $csm = round($csm, 2);
                 $kp = round($kp, 4) * 100;
-                echo $kp . '\n';
                 $playerStats[] = array(
                     'PlayerName' => $playerName,
                     'Kills' => $kills,
