@@ -335,7 +335,7 @@ function getPlayerKDAFromMatch($matchId, $riotToken, $conn) {
         // Check the database for existing PUUIDs and names
         $existingPuuids = getExistingPuuidsFromDatabase($conn);
         $existingNames = getExistingNamesFromDatabase($conn);
-
+        print_r($matchData);
         foreach ($participants as $participant) {
             $puuid = $participant['puuid'];
             $playerName = $participant['summonerName'];

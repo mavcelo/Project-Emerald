@@ -108,7 +108,6 @@ if($_SESSION['isadmin'] == TRUE) {
                     <th>(K+A)/D</th>
                     <th>CS</th>
                     <th>CS/M</th>
-                    <th>DPM</th>
                     <th>Vision Score</th>
                     <th>K/P</th>
                 </tr>
