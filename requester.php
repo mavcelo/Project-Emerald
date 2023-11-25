@@ -325,7 +325,6 @@ function getExistingNamesFromDatabase($conn) {
 function getPlayerKDAFromMatch($matchId, $riotToken, $conn) {
     // Get match data using your function to fetch data from the Riot API
     $matchData = getMatchData($matchId, $riotToken);
-    print_r($matchData);
     // Check if the 'participants' key exists in the match data
     if (isset($matchData['info']['participants'])) {
         $participants = $matchData['info']['participants'];
@@ -354,7 +353,6 @@ function getPlayerKDAFromMatch($matchId, $riotToken, $conn) {
                 $csm = $participant['totalMinionsKilled'] / ($gameTime / 60);
                 $kp = $participant['challenges']['killParticipation'];
                 $vs = $participant['visionScore'];
-                echo $kp . '\n';
                 $kd = round($kd, 2);
                 $kad = round($kad, 2);
                 $csm = round($csm, 2);
