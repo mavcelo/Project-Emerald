@@ -46,16 +46,18 @@ if (isset($_POST['remove_teams'])) {
                 $teamsWithPlayers[] = $teamId;
             }
         }
-
+        
         if (!empty($teamsWithPlayers)) {
-            // Display a message indicating teams with players cannot be removed
-            $teamsWithPlayers = htmlspecialchars(strip_tags($teamsWithPlayers));
-            echo "Cannot remove the following teams because players are still assigned to them: " . implode(', ', $teamsWithPlayers);
+            
+            $escapedTeamsWithPlayers = array_map('htmlspecialchars', $teamsWithPlayers);
+            foreach ($escapedTeamsWithPlayers as $teams) {
+                echo "<h4 style='padding:10px;'>Cannot remove the following teams because players are still assigned to them: " . htmlspecialchars($teams) . "</h4>";
+
+            }
+
         } else {
             // Prepare a placeholder string for the IN clause based on the number of selected teams
             $placeholders = implode(',', array_fill(0, count($selectedTeams), '?'));
-
-            // Prepare the SQL statement to delete selected teams from the database
             $sql = "DELETE FROM teams WHERE team_id IN ($placeholders)";
 
             // Create a prepared statement
@@ -65,7 +67,14 @@ if (isset($_POST['remove_teams'])) {
             $paramType = str_repeat('s', count($selectedTeams)); // Assuming team_id is an integer, adjust if needed
             $params = array(&$stmt, $paramType);
             foreach ($selectedTeams as &$teamId) {
-                $teamId = htmlspecialchars(strip_tags($teamId));
+                // Check if $teamId is an array
+                if (is_array($teamId)) {
+                    foreach ($teamId as &$element) {
+                        $element = htmlspecialchars(strip_tags($element));
+                    }
+                } else {
+                    $teamId = htmlspecialchars(strip_tags($teamId));
+                }
                 $params[] = &$teamId;
             }
 

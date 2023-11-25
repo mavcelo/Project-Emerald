@@ -97,20 +97,7 @@ if($_SESSION['isadmin'] == TRUE) {
                 }
             
             ?>
-            
-        </div>
 
-
-        <div class="tabContent" id="draftOrganizationContent" style="display: none;">
-            <!-- Content for the Setup View tab -->
-            <h2>Draft View</h2>
-            <p>This is the Draft View content.</p>
-            <p>Specific data for Draft View goes here.</p>
-            
-        </div>
-
-
-        <div class="tabContent col-md-10" id="generalStatsViewContent" style="display: none">
             <table class="table table-hover table-striped player-table">
                 <tr>
                     <th>Player Name</th>
@@ -160,6 +147,21 @@ if($_SESSION['isadmin'] == TRUE) {
                     }
                 ?>
             </table>
+            
+        </div>
+
+
+        <div class="tabContent" id="draftOrganizationContent" style="display: none;">
+            <!-- Content for the Setup View tab -->
+            <h2>Draft View</h2>
+            <p>This is the Draft View content.</p>
+            <p>Specific data for Draft View goes here.</p>
+            
+        </div>
+
+
+        <div class="tabContent col-md-10" id="generalStatsViewContent" style="display: none">
+            EMPTY FOR NOW
         </div>
     </div>
         
