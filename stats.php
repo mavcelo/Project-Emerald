@@ -175,7 +175,7 @@ if (isset($_POST['confirmStats'])) {
                             echo '<td>' . $playerStats['VS'] . "</td>";
                             echo '<td>' . $playerStats['KP'] . "%</td>";
                             // Add a new column with the confirmation button
-                            echo '<td>
+                            echo '<td type="hidden">
                                     <form method="post">
                                         <input type="hidden" name="playerName" value="' . $playerStats['PlayerName'] . '">
                                         <input type="hidden" name="kills" value="' . $playerStats['Kills'] . '">
@@ -191,14 +191,20 @@ if (isset($_POST['confirmStats'])) {
                                 </td>';
                             echo '</tr>';
                         }
+
                     }
                 ?>
                 
             </table>
-            <form method="post">
-                <button type="submit" name="confirmStats" class="btn btn-success">Confirm Selected Player Stats</button>
-            </form>
+            <?php 
+            if (isset($_POST['submit'])) {
+               echo' <form method="post">
+                        <button type="submit" name="confirmStats" class="btn btn-success">Confirm Selected Player Stats</button>
+                    </form>';
             
+            }
+
+            ?>
         </div>
 
 
