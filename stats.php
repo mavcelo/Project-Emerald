@@ -192,12 +192,12 @@ if (isset($_POST['confirmStats'])) {
                                         <input type="hidden" name="kp" value="' . $playerStats['KP'] . '">
                                     </form>
                                 </td>';
-               echo' <form method="post">
-                        <button type="submit" name="confirmStats" class="btn btn-success">Confirm Selected Player Stats</button>
-                    </form>';
+               
             
             }
-
+            echo' <form method="post">
+                <button type="submit" name="confirmStats" class="btn btn-success">Confirm Selected Player Stats</button>
+            </form>';
             ?>
         </div>
 
