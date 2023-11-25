@@ -187,7 +187,6 @@ if (isset($_POST['confirmStats'])) {
                                         <input type="hidden" name="csm" value="' . $playerStats['CSM'] . '">
                                         <input type="hidden" name="vs" value="' . $playerStats['VS'] . '">
                                         <input type="hidden" name="kp" value="' . $playerStats['KP'] . '">
-                                        <button type="submit" name="confirmStats" class="btn btn-success">Confirm</button>
                                     </form>
                                 </td>';
                             echo '</tr>';
@@ -196,6 +195,9 @@ if (isset($_POST['confirmStats'])) {
                 ?>
                 
             </table>
+            <form method="post">
+                <button type="submit" name="confirmStats" class="btn btn-success">Confirm Selected Player Stats</button>
+            </form>
             
         </div>
 
