@@ -356,6 +356,8 @@ function getPlayerKDAFromMatch($matchId, $riotToken, $conn) {
                 $kd = round($kd, 2);
                 $kad = round($kad, 2);
                 $csm = round($csm, 2);
+                $dmg = $participant['totalDamageDealtToChampions'];
+                $dmm = round($participant['challenges']['damagePerMinute'], 2);
                 $kp = round($kp, 4) * 100;
                 $playerStats[] = array(
                     'PlayerName' => $playerName,
@@ -366,6 +368,8 @@ function getPlayerKDAFromMatch($matchId, $riotToken, $conn) {
                     'K/D/A' => $kad,
                     'CS' => $cs,
                     'CSM' => $csm,
+                    'DMG' => $dmg,
+                    'DMM' => $dmm,
                     'VS' => $vs,
                     'KP' => $kp,
                 );
