@@ -36,7 +36,7 @@ if (isset($_POST['confirmStats'])) {
     // Perform the insertion into the player_stats table
     // Use prepared statements to prevent SQL injection
 
-    $stmt = $conn->prepare("INSERT INTO player_stats (`name`, kills, deaths, assists, kd, kda, cs, csm, dmg, dmm, vs, kp, match_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt = $conn->prepare("INSERT INTO player_stats (`name`, kills, deaths, assists, kd, kad, cs, csm, dmg, dmm, vs, kp, match_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
     $stmt->bind_param("siiiiiiiiiiis", $playerName, $kills, $deaths, $assists, $kd, $kda, $cs, $csm, $dmg, $dmm, $vs, $kp, $matchId);
     
     if ($stmt->execute()) {
@@ -166,7 +166,17 @@ if (isset($_POST['confirmStats'])) {
                             echo '<td>' . $playerStats['KP'] . "%</td>";
                             echo '</tr>';
                     
-                            echo '<td type="hidden">
+                            
+                            echo '</tr>';
+                        }
+
+                    }
+                ?>
+                
+            </table>
+            <?php 
+            if (isset($_POST['confirmStats'])) {
+                echo '<td type="hidden">
                                     <form method="post">
                                         <input type="hidden" name="playerName" value="' . $playerStats['PlayerName'] . '">
                                         <input type="hidden" name="kills" value="' . $playerStats['Kills'] . '">
@@ -182,15 +192,6 @@ if (isset($_POST['confirmStats'])) {
                                         <input type="hidden" name="kp" value="' . $playerStats['KP'] . '">
                                     </form>
                                 </td>';
-                            echo '</tr>';
-                        }
-
-                    }
-                ?>
-                
-            </table>
-            <?php 
-            if (isset($_POST['submit'])) {
                echo' <form method="post">
                         <button type="submit" name="confirmStats" class="btn btn-success">Confirm Selected Player Stats</button>
                     </form>';
