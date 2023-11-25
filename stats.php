@@ -15,6 +15,37 @@ if($_SESSION['isadmin'] == TRUE) {
 } else {
     $guestoradmin = 'Guest';
 }    
+
+
+if (isset($_POST['confirmStats'])) {
+    // Retrieve data from the form submission
+    $playerName = $_POST['playerName'];
+    $kills = $_POST['kills'];
+    $deaths = $_POST['deaths'];
+    $assists = $_POST['assists'];
+    $kd = $_POST['kd'];
+    $kda = $_POST['kda'];
+    $cs = $_POST['cs'];
+    $csm = $_POST['csm'];
+    $vs = $_POST['vs'];
+    $kp = $_POST['kp'];
+
+    // Perform the insertion into the player_stats table
+    // Use prepared statements to prevent SQL injection
+
+    $stmt = $conn->prepare("INSERT INTO player_stats (PlayerName, Kills, Deaths, Assists, KD, KDA, CS, CSM, VS, KP) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("siiiiiiiii", $playerName, $kills, $deaths, $assists, $kd, $kda, $cs, $csm, $vs, $kp);
+    
+    if ($stmt->execute()) {
+        echo "Player stats confirmed and added to the player_stats table.";
+    } else {
+        echo "Error adding player stats: " . $stmt->error;
+    }
+
+    $stmt->close();
+}
+
+
 ?>
     
 <!DOCTYPE html>
@@ -129,7 +160,41 @@ if($_SESSION['isadmin'] == TRUE) {
                             echo '</tr>';
                         }
                     }
+                    if (isset($_POST['submit'])) {
+                        foreach ($_SESSION['playerKDA'] as $playerStats) {
+                
+                            echo '<tr>';
+                            echo '<td>' . $playerStats['PlayerName'] . "</td>";
+                            echo '<td>' . $playerStats['Kills'] . "</td>";
+                            echo '<td>' . $playerStats['Deaths'] . "</td>";
+                            echo '<td>' . $playerStats['Assists'] . "</td>";
+                            echo '<td>' . $playerStats['K/D'] . "</td>";
+                            echo '<td>' . $playerStats['K/D/A'] . "</td>";
+                            echo '<td>' . $playerStats['CS'] . "</td>";
+                            echo '<td>' . $playerStats['CSM'] . "</td>";
+                            echo '<td>' . $playerStats['VS'] . "</td>";
+                            echo '<td>' . $playerStats['KP'] . "%</td>";
+                            // Add a new column with the confirmation button
+                            echo '<td>
+                                    <form method="post">
+                                        <input type="hidden" name="playerName" value="' . $playerStats['PlayerName'] . '">
+                                        <input type="hidden" name="kills" value="' . $playerStats['Kills'] . '">
+                                        <input type="hidden" name="deaths" value="' . $playerStats['Deaths'] . '">
+                                        <input type="hidden" name="assists" value="' . $playerStats['Assists'] . '">
+                                        <input type="hidden" name="kd" value="' . $playerStats['K/D'] . '">
+                                        <input type="hidden" name="kda" value="' . $playerStats['K/D/A'] . '">
+                                        <input type="hidden" name="cs" value="' . $playerStats['CS'] . '">
+                                        <input type="hidden" name="csm" value="' . $playerStats['CSM'] . '">
+                                        <input type="hidden" name="vs" value="' . $playerStats['VS'] . '">
+                                        <input type="hidden" name="kp" value="' . $playerStats['KP'] . '">
+                                        <button type="submit" name="confirmStats" class="btn btn-success">Confirm</button>
+                                    </form>
+                                </td>';
+                            echo '</tr>';
+                        }
+                    }
                 ?>
+                
             </table>
             
         </div>
