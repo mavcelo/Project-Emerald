@@ -36,7 +36,7 @@ if (isset($_POST['confirmStats'])) {
     // Perform the insertion into the player_stats table
     // Use prepared statements to prevent SQL injection
 
-    $stmt = $conn->prepare("INSERT INTO player_stats (`name`, kills, deaths, assists, kd, kad, cs, csm, dmg, dmm, vs, kp, match_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt = $conn->prepare("INSERT INTO player_stats (`name`, kills, deaths, assists, kd, kad, cs, csm, dmg, dmm, vision_score, kp, match_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
     $stmt->bind_param("siiiiiiiiiiis", $playerName, $kills, $deaths, $assists, $kd, $kda, $cs, $csm, $dmg, $dmm, $vs, $kp, $matchId);
     
     if ($stmt->execute()) {
