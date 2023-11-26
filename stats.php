@@ -164,20 +164,22 @@ function displayPlayerStatsTable($players) {
     echo '<tr><th>Name</th><th>Kills</th><th>Deaths</th><th>Assists</th><th>K/D</th><th>K/D/A</th><th>CS</th><th>CSM</th><th>DMG</th><th>DMM</th><th>Vision Score</th><th>KP</th></tr>';
     print_r($players);
     foreach ($players as $player) {
-        echo '<tr>';
-        echo '<td>' . $player['name'] . '</td>';
-        echo '<td>' . $player['kills'] . '</td>';
-        echo '<td>' . $player['deaths'] . '</td>';
-        echo '<td>' . $player['assists'] . '</td>';
-        echo '<td>' . $player['kd'] . '</td>';
-        echo '<td>' . $player['kad'] . '</td>';
-        echo '<td>' . $player['cs'] . '</td>';
-        echo '<td>' . $player['csm'] . '</td>';
-        echo '<td>' . $player['dmg'] . '</td>';
-        echo '<td>' . $player['dmm'] . '</td>';
-        echo '<td>' . $player['vision_score'] . '</td>';
-        echo '<td>' . $player['kp'] . '</td>';
-        echo '</tr>';
+        if(is_array($player)) {
+            echo '<tr>';
+            echo '<td>' . $player['name'] . '</td>';
+            echo '<td>' . $player['kills'] . '</td>';
+            echo '<td>' . $player['deaths'] . '</td>';
+            echo '<td>' . $player['assists'] . '</td>';
+            echo '<td>' . $player['kd'] . '</td>';
+            echo '<td>' . $player['kad'] . '</td>';
+            echo '<td>' . $player['cs'] . '</td>';
+            echo '<td>' . $player['csm'] . '</td>';
+            echo '<td>' . $player['dmg'] . '</td>';
+            echo '<td>' . $player['dmm'] . '</td>';
+            echo '<td>' . $player['vision_score'] . '</td>';
+            echo '<td>' . $player['kp'] . '</td>';
+            echo '</tr>';
+        }
     }
 
     echo '</table>';
