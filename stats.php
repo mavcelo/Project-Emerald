@@ -191,7 +191,7 @@ if (isset($_POST['confirmStats'])) {
             //$minutes = floor($_SESSION['playerKDA'] / 60);
             //$remainingSeconds = $_SESSION['playerKDA'] % 60;
             
-            echo '<span>' . $minutes . ":" . $remainingSeconds . "</span>"; ?>
+           // echo '<span>' . $minutes . ":" . $remainingSeconds . "</span>"; ?>
             <table class="table table-hover table-striped player-table">
                 <tr>
                     <th>Player Name</th>
