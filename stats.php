@@ -46,34 +46,11 @@ if (isset($_POST['confirmStats'])) {
     if ($ff != 1) {
         // Check if the match_id exists in match_stats before inserting into player_stats
         if ($checkMatchStmt->execute() && $checkMatchStmt->fetch()) {
-            // The match_id exists, proceed with inserting into player_stats
-            $checkMatchStmt->close();  // Close the result set
+
+
+            echo 'Match ID has already been submitted, please use a different ID.';
+            $checkMatchStmt->close();  
     
-            foreach ($_SESSION['playerKDA'] as $playerStats) {
-                // Fetch team_id from players table based on player name
-                $fetchTeamIdStmt = $conn->prepare("SELECT team_id FROM players WHERE `name` = ?");
-                $fetchTeamIdStmt->bind_param("s", $playerStats['PlayerName']);
-                $fetchTeamIdStmt->execute();
-                $fetchTeamIdStmt->bind_result($teamId);
-    
-                if ($fetchTeamIdStmt->fetch()) {
-                    $fetchTeamIdStmt->close();  // Close after fetching
-    
-                    // Prepare a new statement for player_stats
-                    $stmt = $conn->prepare("INSERT INTO player_stats (`name`, kills, deaths, assists, kd, kad, cs, csm, dmg, dmm, vision_score, kp, match_id, team_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-                    $stmt->bind_param("sdddddddddddss", $playerStats['PlayerName'], $playerStats['Kills'], $playerStats['Deaths'], $playerStats['Assists'], $playerStats['K/D'], $playerStats['K/D/A'], $playerStats['CS'], $playerStats['CSM'], $playerStats['DMG'], $playerStats['DMM'], $playerStats['VS'], $playerStats['KP'], $matchId, $teamId);
-    
-                    if ($stmt->execute()) {
-                        echo "Player stats for " . $playerStats['PlayerName'] . " confirmed and added to the player_stats table.<br>";
-                    } else {
-                        echo "Error adding player stats for " . $playerStats['PlayerName'] . ": " . $stmt->error . "<br>";
-                    }
-    
-                    $stmt->close();  // Close and free resources
-                } else {
-                    echo "Error fetching team_id for player " . $playerStats['PlayerName'] . ": " . $fetchTeamIdStmt->error . "<br>";
-                }
-            }
         } else {
             // The match_id doesn't exist in match_stats
             // Insert match_id into match_stats
@@ -353,7 +330,7 @@ function displayPlayerStatsTable($players) {
 
         <div class="tabContent" id="teamStatsContent" style=<?php if ($guestoradmin == "Guest") {echo '"display: block;"';} else {echo '"display: none;"';} ?>>
             <!-- Content for the Setup View tab -->
-            <h2>Team Stats</h2>
+            <h2 style="margin: auto">Team Stats</h2>
                 <?php
                     $teamIds = getTeamIds($conn);
 
