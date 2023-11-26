@@ -361,7 +361,6 @@ function displayPlayerStatsTable($players) {
 
                     foreach ($teamIds as $teamId) {
                         $playersInTeamStats = getPlayersInTeamStats($conn, $teamId);
-                        print_r($playersInTeamStats);
                         if (!empty($playersInTeamStats)) {
                             echo '<h3>Team: ' . $teamId . '</h3>';
                             displayPlayerStatsTable($playersInTeamStats);
