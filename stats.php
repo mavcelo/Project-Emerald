@@ -49,8 +49,6 @@ if (isset($_POST['confirmStats'])) {
             // The match_id exists, proceed with inserting into player_stats
             $checkMatchStmt->close();  // Close the result set
     
-            $confirmButtonEnabled = true;  // Initialize the flag for confirming button state
-    
             foreach ($_SESSION['playerKDA'] as $playerStats) {
                 // Fetch team_id from players table based on player name
                 $fetchTeamIdStmt = $conn->prepare("SELECT team_id FROM players WHERE `name` = ?");
@@ -61,13 +59,7 @@ if (isset($_POST['confirmStats'])) {
                 if ($fetchTeamIdStmt->fetch()) {
                     $fetchTeamIdStmt->close();  // Close after fetching
     
-                    // Check if team_id is null, if yes, set the flag to false
-                    if ($teamId === null) {
-                        $confirmButtonEnabled = false;
-                        echo "Error: Player " . $playerStats['PlayerName'] . " is not on a team. Please add them to a team to confirm stats.<br>";
-                    }
-    
-                    // Proceed with inserting into player_stats
+                    // Prepare a new statement for player_stats
                     $stmt = $conn->prepare("INSERT INTO player_stats (`name`, kills, deaths, assists, kd, kad, cs, csm, dmg, dmm, vision_score, kp, match_id, team_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
                     $stmt->bind_param("sdddddddddddss", $playerStats['PlayerName'], $playerStats['Kills'], $playerStats['Deaths'], $playerStats['Assists'], $playerStats['K/D'], $playerStats['K/D/A'], $playerStats['CS'], $playerStats['CSM'], $playerStats['DMG'], $playerStats['DMM'], $playerStats['VS'], $playerStats['KP'], $matchId, $teamId);
     
@@ -82,12 +74,6 @@ if (isset($_POST['confirmStats'])) {
                     echo "Error fetching team_id for player " . $playerStats['PlayerName'] . ": " . $fetchTeamIdStmt->error . "<br>";
                 }
             }
-    
-            if (!$confirmButtonEnabled) {
-                // Display error message and disable the confirmation button
-                echo "Users not added to a team. Please add them to a team to confirm stats.<br>";
-                echo '<script>document.getElementById("confirmButton").disabled = true;</script>';
-            }
         } else {
             // The match_id doesn't exist in match_stats
             // Insert match_id into match_stats
@@ -98,8 +84,6 @@ if (isset($_POST['confirmStats'])) {
     
             if ($insertMatchStmt->execute()) {
                 echo "Match ID added to match_stats table. ";
-    
-                $confirmButtonEnabled = true;  // Initialize the flag for confirming button state
     
                 // Now proceed with inserting into player_stats
                 foreach ($_SESSION['playerKDA'] as $playerStats) {
@@ -112,13 +96,7 @@ if (isset($_POST['confirmStats'])) {
                     if ($fetchTeamIdStmt->fetch()) {
                         $fetchTeamIdStmt->close();  // Close after fetching
     
-                        // Check if team_id is null, if yes, set the flag to false
-                        if ($teamId === null) {
-                            $confirmButtonEnabled = false;
-                            echo "Error: Player " . $playerStats['PlayerName'] . " is not on a team. Please add them to a team to confirm stats.<br>";
-                        }
-    
-                        // Proceed with inserting into player_stats
+                        // Prepare a new statement for player_stats
                         $stmt = $conn->prepare("INSERT INTO player_stats (`name`, kills, deaths, assists, kd, kad, cs, csm, dmg, dmm, vision_score, kp, match_id, team_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
                         $stmt->bind_param("sddddddddddds", $playerStats['PlayerName'], $playerStats['Kills'], $playerStats['Deaths'], $playerStats['Assists'], $playerStats['K/D'], $playerStats['K/D/A'], $playerStats['CS'], $playerStats['CSM'], $playerStats['DMG'], $playerStats['DMM'], $playerStats['VS'], $playerStats['KP'], $matchId, $teamId);
     
@@ -133,12 +111,6 @@ if (isset($_POST['confirmStats'])) {
                         echo "Error fetching team_id for player " . $playerStats['PlayerName'] . ": " . $fetchTeamIdStmt->error . "<br>";
                     }
                 }
-    
-                if (!$confirmButtonEnabled) {
-                    // Display error message and disable the confirmation button
-                    echo "Users not added to a team. Please add them to a team to confirm stats.<br>";
-                    echo '<script>document.getElementById("confirmButton").disabled = true;</script>';
-                }
             } else {
                 echo "Error adding match ID to match_stats table: " . $insertMatchStmt->error . "<br>";
             }
@@ -150,7 +122,65 @@ if (isset($_POST['confirmStats'])) {
     }
 }    
 
+// Function to get all team IDs from the teams table
+function getTeamIds($conn) {
+    $teamIds = array();
 
+    $stmt = $conn->prepare("SELECT team_id FROM teams");
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    while ($row = $result->fetch_assoc()) {
+        $teamIds[] = $row['team_id'];
+    }
+
+    $stmt->close();
+
+    return $teamIds;
+}
+
+// Function to get players in a specific team from player_stats
+function getPlayersInTeamStats($conn, $teamId) {
+    $players = array();
+
+    $stmt = $conn->prepare("SELECT * FROM player_stats WHERE team_id = ?");
+    $stmt->bind_param("s", $teamId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    while ($row = $result->fetch_assoc()) {
+        $players[] = $row;
+    }
+
+    $stmt->close();
+
+    return $players;
+}
+
+// Function to display player stats in a table
+function displayPlayerStatsTable($players) {
+    echo '<table border="1">';
+    echo '<tr><th>Name</th><th>Kills</th><th>Deaths</th><th>Assists</th><th>K/D</th><th>K/D/A</th><th>CS</th><th>CSM</th><th>DMG</th><th>DMM</th><th>Vision Score</th><th>KP</th></tr>';
+
+    foreach ($players as $player) {
+        echo '<tr>';
+        echo '<td>' . $player['name'] . '</td>';
+        echo '<td>' . $player['kills'] . '</td>';
+        echo '<td>' . $player['deaths'] . '</td>';
+        echo '<td>' . $player['assists'] . '</td>';
+        echo '<td>' . $player['kd'] . '</td>';
+        echo '<td>' . $player['kad'] . '</td>';
+        echo '<td>' . $player['cs'] . '</td>';
+        echo '<td>' . $player['csm'] . '</td>';
+        echo '<td>' . $player['dmg'] . '</td>';
+        echo '<td>' . $player['dmm'] . '</td>';
+        echo '<td>' . $player['vision_score'] . '</td>';
+        echo '<td>' . $player['kp'] . '</td>';
+        echo '</tr>';
+    }
+
+    echo '</table>';
+}
 ?>
     
 <!DOCTYPE html>
@@ -324,54 +354,20 @@ if (isset($_POST['confirmStats'])) {
         <div class="tabContent" id="teamStatsContent" style=<?php if ($guestoradmin == "Guest") {echo '"display: block;"';} else {echo '"display: none;"';} ?>>
             <!-- Content for the Setup View tab -->
             <h2>Team Stats</h2>
-
-            <table class="table table-hover table-bordered player-table">
-                <tr>
-                    <th>Player Name</th>
-                    <th>Kills</th>
-                    <th>Deaths</th>
-                    <th>Assists</th>
-                    <th>K/D</th>
-                    <th>(K+A)/D</th>
-                    <th>CS</th>
-                    <th>CS/M</th>
-                    <th>Damage</th>
-                    <th>DPM</th>
-                    <th>Vision Score</th>
-                    <th>K/P</th>
-                </tr>
                 <?php
-                    // Fetch data from the player_stats table
-                    $stmt = $conn->prepare("SELECT * FROM player_stats");
-                    $stmt->execute();
-                    $result = $stmt->get_result();
+                    $teamIds = getTeamIds($conn);
 
-                    // Check if there are rows in the result
-                    if ($result->num_rows > 0) {
-                        while ($matchStats = $result->fetch_assoc()) {
-                            echo '<tr>';
-                            echo '<td>' . $matchStats['name'] . "</td>";
-                            echo '<td>' . $matchStats['kills'] . "</td>";
-                            echo '<td>' . $matchStats['deaths'] . "</td>";
-                            echo '<td>' . $matchStats['assists'] . "</td>";
-                            echo '<td>' . $matchStats['kd'] . "</td>";
-                            echo '<td>' . $matchStats['kad'] . "</td>";
-                            echo '<td>' . $matchStats['cs'] . "</td>";
-                            echo '<td>' . $matchStats['csm'] . "</td>";
-                            echo '<td>' . $matchStats['dmg'] . "</td>";
-                            echo '<td>' . $matchStats['dmm'] . "</td>";
-                            echo '<td>' . $matchStats['vision_score'] . "</td>";
-                            echo '<td>' . $matchStats['kp'] . "%</td>";
-                            echo '</tr>';
+                    foreach ($teamIds as $teamId) {
+                        $playersInTeamStats = getPlayersInTeamStats($conn, $teamId);
+
+                        if (!empty($playersInTeamStats)) {
+                            echo '<h2>Team: ' . $teamId . '</h2>';
+                            displayPlayerStatsTable($playersInTeamStats);
+                        } else {
+                            echo '<p>No players found in Team: ' . $teamId . '</p>';
                         }
-                    } else {
-                        echo '<tr><td colspan="12">No player stats found.</td></tr>';
                     }
-
-                    // Close the statement and database connection
-                    $stmt->close();
-                    $conn->close();
-                    ?>
+                ?>
 
                 
             </table>
