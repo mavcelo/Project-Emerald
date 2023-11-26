@@ -55,7 +55,7 @@ if (isset($_POST['confirmStats'])) {
                 $fetchTeamIdStmt->bind_param("s", $playerStats['PlayerName']);
                 $fetchTeamIdStmt->execute();
                 $fetchTeamIdStmt->bind_result($teamId);
-                
+                $fetchTeamIdStmt->close();
                 if ($fetchTeamIdStmt->fetch()) {
                     // Prepare a new statement for player_stats
                     $stmt = $conn->prepare("INSERT INTO player_stats (`name`, kills, deaths, assists, kd, kad, cs, csm, dmg, dmm, vision_score, kp, match_id, team_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
@@ -92,7 +92,7 @@ if (isset($_POST['confirmStats'])) {
                     $fetchTeamIdStmt->bind_param("s", $playerStats['PlayerName']);
                     $fetchTeamIdStmt->execute();
                     $fetchTeamIdStmt->bind_result($teamId);
-                    
+                    $fetchTeamIdStmt->close();
                     if ($fetchTeamIdStmt->fetch()) {
                         // Prepare a new statement for player_stats
                         $stmt = $conn->prepare("INSERT INTO player_stats (`name`, kills, deaths, assists, kd, kad, cs, csm, dmg, dmm, vision_score, kp, match_id, team_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
