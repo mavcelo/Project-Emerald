@@ -159,7 +159,7 @@ function getPlayersInTeamStats($conn, $teamId) {
 
 // Function to display player stats in a table
 function displayPlayerStatsTable($players) {
-    echo '<table border="1">';
+    echo '<table class="table table-bordered" style="padding-left:10px;">';
     echo '<tr><th>Name</th><th>Kills</th><th>Deaths</th><th>Assists</th><th>K/D</th><th>K/D/A</th><th>CS</th><th>CSM</th><th>DMG</th><th>DMM</th><th>Vision Score</th><th>KP</th></tr>';
 
     foreach ($players as $player) {
@@ -361,10 +361,8 @@ function displayPlayerStatsTable($players) {
                         $playersInTeamStats = getPlayersInTeamStats($conn, $teamId);
 
                         if (!empty($playersInTeamStats)) {
-                            echo '<h2>Team: ' . $teamId . '</h2>';
+                            echo '<h3>Team: ' . $teamId . '</h3>';
                             displayPlayerStatsTable($playersInTeamStats);
-                        } else {
-                            echo '<p>No players found in Team: ' . $teamId . '</p>';
                         }
                     }
                 ?>
