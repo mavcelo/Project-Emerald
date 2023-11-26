@@ -49,8 +49,7 @@ if (isset($_POST['confirmStats'])) {
             foreach ($_SESSION['playerKDA'] as $playerStats) {
                 // Prepare a new statement for player_stats
                 $stmt = $conn->prepare("INSERT INTO player_stats (`name`, kills, deaths, assists, kd, kad, cs, csm, dmg, dmm, vision_score, kp, match_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-                $stmt->bind_param("sddddddddddds", $playerStats['PlayerName'], $kills, $deaths, $assists, $kd, $kda, $cs, $csm, $dmg, $dmm, $vs, $kp, $matchId);
-    
+                $stmt->bind_param("sddddddddddds", $playerStats['PlayerName'], $playerStats['Kills'], $playerStats['Deaths'], $playerStats['Assists'], $playerStats['K/D'], $playerStats['K/D/A'], $playerStats['CS'], $playerStats['CSM'], $playerStats['DMG'], $playerStats['DMM'], $playerStats['VS'], $playerStats['KP'], $matchId);    
                 if ($stmt->execute()) {
                     echo "Player stats for " . $playerStats['PlayerName'] . " confirmed and added to the player_stats table.<br>";
                 } else {
@@ -74,7 +73,7 @@ if (isset($_POST['confirmStats'])) {
                 foreach ($_SESSION['playerKDA'] as $playerStats) {
                     // Prepare a new statement for player_stats
                     $stmt = $conn->prepare("INSERT INTO player_stats (`name`, kills, deaths, assists, kd, kad, cs, csm, dmg, dmm, vision_score, kp, match_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-                    $stmt->bind_param("sddddddddddds", $playerStats['PlayerName'], $kills, $deaths, $assists, $kd, $kda, $cs, $csm, $dmg, $dmm, $vs, $kp, $matchId);
+                    $stmt->bind_param("sddddddddddds", $playerStats['PlayerName'], $playerStats['Kills'], $playerStats['Deaths'], $playerStats['Assists'], $playerStats['K/D'], $playerStats['K/D/A'], $playerStats['CS'], $playerStats['CSM'], $playerStats['DMG'], $playerStats['DMM'], $playerStats['VS'], $playerStats['KP'], $matchId);    
     
                     if ($stmt->execute()) {
                         echo "Player stats for " . htmlspecialchars(strip_tags($playerName)) . " confirmed and added to the player_stats table.<br>";
