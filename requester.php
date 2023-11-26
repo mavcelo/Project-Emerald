@@ -359,8 +359,7 @@ function getPlayerMatchStats($matchId, $riotToken, $conn) {
                 $kp = isset($participant['challenges']['killParticipation']) ? $participant['challenges']['killParticipation'] : 0;
                 $vs = $participant['visionScore'];
                 $kd = round($kd, 2);
-                $minutes = floor($gameTime / 60);
-                $remainingSeconds = $gameTime % 60;
+
                 $kad = round($kad, 2);
                 $csm = round($csm, 2);
                 $ff = $participant['gameEndedInEarlySurrender'];
@@ -377,8 +376,7 @@ function getPlayerMatchStats($matchId, $riotToken, $conn) {
                     'CS' => $cs,
                     'CSM' => $csm,
                     'FF' => $ff,
-                    'TIME_MINS' => $minutes,
-                    'TIME_SEC' => $remainingSeconds,
+                    'MATCH_TIME' => $gameTime,
                     'DMG' => $dmg,
                     'DMM' => $dmm,
                     'VS' => $vs,
@@ -394,6 +392,7 @@ function getPlayerMatchStats($matchId, $riotToken, $conn) {
         }
 
         // Return the array of player statistics
+        print_r($matchStats);
         return $matchStats;
     } else {
         return [];
