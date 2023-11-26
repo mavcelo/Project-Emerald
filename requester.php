@@ -347,15 +347,23 @@ function getPlayerMatchStats($matchId, $riotToken, $conn) {
                 $kills = $participant['kills'];
                 $deaths = $participant['deaths'];
                 $assists = $participant['assists'];
-                $kd = $participant['kills'] / $participant['deaths'];
-                $kad = ($participant['kills'] + $participant['assists']) / $participant['deaths'];
+                if ($participant['deaths'] == 0) {
+                    $kad = ($participant['kills'] + $participant['assists']);
+                    $kd = $participant['kills'];
+                } else {
+                    $kd = $participant['kills'] / $participant['deaths'];
+                    $kad = ($participant['kills'] + $participant['assists']) / $participant['deaths'];
+                }                
                 $cs = $participant['totalMinionsKilled'];
                 $csm = $participant['totalMinionsKilled'] / ($gameTime / 60);
-                $kp = $participant['challenges']['killParticipation'];
+                $kp = isset($participant['challenges']['killParticipation']) ? $participant['challenges']['killParticipation'] : 0;
                 $vs = $participant['visionScore'];
                 $kd = round($kd, 2);
+                $minutes = floor($gameTime / 60);
+                $remainingSeconds = $gameTime % 60;
                 $kad = round($kad, 2);
                 $csm = round($csm, 2);
+                $ff = $participant['gameEndedInEarlySurrender'];
                 $dmg = $participant['totalDamageDealtToChampions'];
                 $dmm = round($participant['challenges']['damagePerMinute'], 2);
                 $kp = round($kp, 4) * 100;
@@ -368,6 +376,9 @@ function getPlayerMatchStats($matchId, $riotToken, $conn) {
                     'K/D/A' => $kad,
                     'CS' => $cs,
                     'CSM' => $csm,
+                    'FF' => $ff,
+                    'TIME_MINS' => $minutes,
+                    'TIME_SEC' => $remainingSeconds,
                     'DMG' => $dmg,
                     'DMM' => $dmm,
                     'VS' => $vs,

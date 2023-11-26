@@ -27,25 +27,81 @@ if (isset($_POST['confirmStats'])) {
     $kd = $_POST['kd'];
     $kda = $_POST['kda'];
     $cs = $_POST['cs'];
+    $ff = $_POST['ff'];
     $csm = $_POST['csm'];
-    $csm = $_POST['dmg'];
-    $csm = $_POST['dmm'];
+    $dmg = $_POST['dmg'];
+    $dmm = $_POST['dmm'];
     $vs = $_POST['vs'];
     $kp = $_POST['kp'];
 
     // Perform the insertion into the player_stats table
     // Use prepared statements to prevent SQL injection
 
+<<<<<<< HEAD
     $stmt = $conn->prepare("INSERT INTO player_stats (`name`, kills, deaths, assists, kd, kad, cs, csm, dmg, dmm, vision_score, kp, match_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
     $stmt->bind_param("siiiiiiiiiiis", $playerName, $kills, $deaths, $assists, $kd, $kda, $cs, $csm, $dmg, $dmm, $vs, $kp, $matchId);
     
     if ($stmt->execute()) {
         echo "Player stats confirmed and submitted";
+=======
+    // Check if the match_id exists in match_stats before inserting into player_stats
+    $checkMatchStmt = $conn->prepare("SELECT match_id FROM match_stats WHERE match_id = ?");
+    $checkMatchStmt->bind_param("s", $matchId);
+    if ($ff != 1) {
+        if ($checkMatchStmt->execute() && $checkMatchStmt->fetch()) {
+            // The match_id exists, proceed with inserting into player_stats
+            $checkMatchStmt->close();  // Close the result set
+
+            foreach ($_SESSION['playerKDA'] as $playerStats) {
+                $stmt = $conn->prepare("INSERT INTO player_stats (`name`, kills, deaths, assists, kd, kad, cs, csm, dmg, dmm, vision_score, kp, match_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                $stmt->bind_param("siiiiiiiiiiis", $playerStats['PlayerName'], $playerStats['Kills'], $playerStats['Deaths'], $playerStats['Assists'], $playerStats['K/D'], $playerStats['K/D/A'], $playerStats['CS'], $playerStats['CSM'], $playerStats['DMG'], $playerStats['DMM'], $playerStats['VS'], $playerStats['KP'], $matchId);
+
+                if ($stmt->execute()) {
+                    echo "Player stats for " . $playerStats['PlayerName'] . " confirmed and added to the player_stats table.<br>";
+                } else {
+                    echo "Error adding player stats for " . $playerStats['PlayerName'] . ": " . $stmt->error . "<br>";
+                }
+
+                $stmt->close();
+            }
+        } else {
+            // The match_id doesn't exist in match_stats
+            // Insert match_id into match_stats
+            $checkMatchStmt->close();  // Close the result set
+
+            $insertMatchStmt = $conn->prepare("INSERT INTO match_stats (match_id) VALUES (?)");
+            $insertMatchStmt->bind_param("s", $matchId);
+
+            if ($insertMatchStmt->execute()) {
+                echo "Match ID added to match_stats table. ";
+
+                // Now proceed with inserting into player_stats
+                foreach ($_SESSION['playerKDA'] as $playerStats) {
+                    $stmt = $conn->prepare("INSERT INTO player_stats (`name`, kills, deaths, assists, kd, kad, cs, csm, dmg, dmm, vision_score, kp, match_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                    $stmt->bind_param("siiiiiiiiiiis", $playerStats['PlayerName'], $playerStats['Kills'], $playerStats['Deaths'], $playerStats['Assists'], $playerStats['K/D'], $playerStats['K/D/A'], $playerStats['CS'], $playerStats['CSM'], $playerStats['DMG'], $playerStats['DMM'], $playerStats['VS'], $playerStats['KP'], $matchId);
+
+                    if ($stmt->execute()) {
+                        echo "Player stats for " . $playerStats['PlayerName'] . " confirmed and added to the player_stats table.<br>";
+                    } else {
+                        echo "Error adding player stats for " . $playerStats['PlayerName'] . ": " . $stmt->error . "<br>";
+                    }
+
+                    $stmt->close();
+                }
+            } else {
+                echo "Error adding match ID to match_stats table: " . $insertMatchStmt->error . "<br>";
+            }
+
+            $insertMatchStmt->close();
+        }
+>>>>>>> refs/remotes/origin/main
     } else {
-        echo "Error adding player stats: " . $stmt->error;
+        echo "Game ended in forfeit. Not valid";
     }
 
-    $stmt->close();
+
+
+
 }
 
 
@@ -109,6 +165,7 @@ if (isset($_POST['confirmStats'])) {
             <?php 
             $riotToken = $_SESSION['riotApiKey'];
             // get vds stats here
+<<<<<<< HEAD
                 if (isset($_POST['submit'])) {
                     $matchId = htmlspecialchars($_POST['matchId']);
                     
@@ -125,10 +182,30 @@ if (isset($_POST['confirmStats'])) {
                             echo 'Player: ' . $matchStats['PlayerName'] . "\n";
                             
                         }
+=======
+>>>>>>> refs/remotes/origin/main
 
-                        echo "</pre>";
+            if (isset($_POST['submit'])) {
+                $matchId = htmlspecialchars($_POST['matchId']);
+                
+                $results = getMatchData($matchId, $riotToken);
+            
+                if (isset($results['error'])) {
+                    echo "Error: " . $results['error'];
+                } else {
+                    echo "<pre>"; // Use <pre> tag for a more readable output
+                    // print_r($results); // Use print_r to display the array contents
+                    $playerName = getPlayerNamesFromMatch($matchId, $riotToken, $conn);
+                    $_SESSION['playerKDA'] = getPlayerKDAFromMatch($matchId, $riotToken, $conn);
+                    echo "Retrieved data for: \n";
+                    foreach ($_SESSION['playerKDA'] as $playerStats) {
+                        echo 'Player: ' . $playerStats['PlayerName'] . "\n";
+                        
                     }
+
+                    echo "</pre>";
                 }
+            }
             
             ?>
 
@@ -175,6 +252,7 @@ if (isset($_POST['confirmStats'])) {
                 
             </table>
             <?php 
+<<<<<<< HEAD
             if (isset($_POST['confirmStats'])) {
                 echo '<td type="hidden">
                                     <form method="post">
@@ -198,6 +276,35 @@ if (isset($_POST['confirmStats'])) {
             echo' <form method="post">
                 <button type="submit" name="confirmStats" class="btn btn-success">Confirm and Submit Match</button>
             </form>';
+=======
+            if (isset($_POST['submit'])) {
+                echo '
+                    <form method="post">
+                        <input type="hidden" name="matchId" value="' . $_POST['matchId'] . '">
+                        <input type="hidden" name="playerName" value="' . $playerStats['PlayerName'] . '">
+                        <input type="hidden" name="kills" value="' . $playerStats['Kills'] . '">
+                        <input type="hidden" name="deaths" value="' . $playerStats['Deaths'] . '">
+                        <input type="hidden" name="assists" value="' . $playerStats['Assists'] . '">
+                        <input type="hidden" name="kd" value="' . $playerStats['K/D'] . '">
+                        <input type="hidden" name="kda" value="' . $playerStats['K/D/A'] . '">
+                        <input type="hidden" name="ff" value="' . $playerStats['FF'] . '">
+                        <input type="hidden" name="cs" value="' . $playerStats['CS'] . '">
+                        <input type="hidden" name="csm" value="' . $playerStats['CSM'] . '">
+                        <input type="hidden" name="dmg" value="' . $playerStats['DMG'] . '">
+                        <input type="hidden" name="dmm" value="' . $playerStats['DMM'] . '">
+                        <input type="hidden" name="vs" value="' . $playerStats['VS'] . '">
+                        <input type="hidden" name="kp" value="' . $playerStats['KP'] . '">
+                        <button type="submit" name="confirmStats" class="btn btn-success">Confirm Selected Player Stats</button>
+
+                    </form>';
+
+            
+               
+            
+            }
+           
+            
+>>>>>>> refs/remotes/origin/main
             ?>
         </div>
 
