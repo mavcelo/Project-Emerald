@@ -186,7 +186,12 @@ if (isset($_POST['confirmStats'])) {
             }
             
             ?>
-
+            <span>Game Length:</span>
+            <?php 
+            $minutes = floor($_SESSION['playerKDA'] / 60);
+            $remainingSeconds = $_SESSION['playerKDA'] % 60;
+            
+            echo '<span>' . $minutes . ":" . $remainingSeconds . "</span>"; ?>
             <table class="table table-hover table-striped player-table">
                 <tr>
                     <th>Player Name</th>
@@ -201,6 +206,7 @@ if (isset($_POST['confirmStats'])) {
                     <th>DPM</th>
                     <th>Vision Score</th>
                     <th>K/P</th>
+                    
                 </tr>
                 <?php
                     if (isset($_POST['submit'])) {
@@ -219,6 +225,7 @@ if (isset($_POST['confirmStats'])) {
                             echo '<td>' . $matchStats['DMM'] . "</td>";
                             echo '<td>' . $matchStats['VS'] . "</td>";
                             echo '<td>' . $matchStats['KP'] . "%</td>";
+                        
                             echo '</tr>';
                     
                             
