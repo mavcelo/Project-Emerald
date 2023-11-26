@@ -162,7 +162,7 @@ function getPlayersInTeamStats($conn, $teamId) {
 function displayPlayerStatsTable($players) {
     echo '<table class="table table-bordered" style="padding-left:10px;">';
     echo '<tr><th>Name</th><th>Kills</th><th>Deaths</th><th>Assists</th><th>K/D</th><th>K/D/A</th><th>CS</th><th>CSM</th><th>DMG</th><th>DMM</th><th>Vision Score</th><th>KP</th></tr>';
-
+    print_r($players . "\n");
     foreach ($players as $player) {
         echo '<tr>';
         echo '<td>' . $player['name'] . '</td>';
