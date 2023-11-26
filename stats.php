@@ -118,7 +118,19 @@ function getTeamIds($conn) {
 
 // Function to get players in a specific team from player_stats
 function getPlayersInTeamStats($conn, $teamId) {
-    $players = array();
+    $totals = array(
+        'kills' => 0,
+        'deaths' => 0,
+        'assists' => 0,
+        'kd' => 0,
+        'kad' => 0,
+        'cs' => 0,
+        'csm' => 0,
+        'dmg' => 0,
+        'dmm' => 0,
+        'vision_score' => 0,
+        'kp' => 0
+    );
 
     $stmt = $conn->prepare("SELECT * FROM player_stats WHERE team_id = ?");
     $stmt->bind_param("s", $teamId);
@@ -126,13 +138,25 @@ function getPlayersInTeamStats($conn, $teamId) {
     $result = $stmt->get_result();
 
     while ($row = $result->fetch_assoc()) {
-        $players[] = $row;
+        // Add each stat to the corresponding total
+        $totals['kills'] += $row['kills'];
+        $totals['deaths'] += $row['deaths'];
+        $totals['assists'] += $row['assists'];
+        $totals['kd'] += $row['kd'];
+        $totals['kad'] += $row['kad'];
+        $totals['cs'] += $row['cs'];
+        $totals['csm'] += $row['csm'];
+        $totals['dmg'] += $row['dmg'];
+        $totals['dmm'] += $row['dmm'];
+        $totals['vision_score'] += $row['vision_score'];
+        $totals['kp'] += $row['kp'];
     }
 
     $stmt->close();
 
-    return $players;
+    return $totals;
 }
+
 
 // Function to display player stats in a table
 function displayPlayerStatsTable($players) {
