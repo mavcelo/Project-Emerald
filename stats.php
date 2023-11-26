@@ -40,7 +40,7 @@ if (isset($_POST['confirmStats'])) {
     $stmt->bind_param("siiiiiiiiiiis", $playerName, $kills, $deaths, $assists, $kd, $kda, $cs, $csm, $dmg, $dmm, $vs, $kp, $matchId);
     
     if ($stmt->execute()) {
-        echo "Player stats confirmed and added to the player_stats table.";
+        echo "Player stats confirmed and submitted";
     } else {
         echo "Error adding player stats: " . $stmt->error;
     }
@@ -68,9 +68,10 @@ if (isset($_POST['confirmStats'])) {
             <div class="container-fluid" >
                 <a class="navbar-brand" href="/dashboard.php">Dashboard</a>
 
-                <div class="tab active" onclick="openTab('statGen')">Generate Stats</div>
-                <div class="tab" onclick="openTab('generalStatsView')">Overall Stats</div>
-                <div class="tab" onclick="openTab('draftOrganization')">Draft Stats</div>
+                <?php if ($guestoradmin == "Admin") {echo '<div class="tab active" onclick=openTab("statGen")>Generate Stats</div>';} ?>
+                <?php if ($guestoradmin == "Guest") {echo '<div class="tab active" onclick=openTab("draftOrganization")>Team Stats</div>';} else {echo '<div class="tab" onclick=openTab("draftOrganization")>Team Stats</div>';}?>
+                <div class="tab" onclick="openTab('generalStatsView')">Overall Player Stats</div>
+                <?php if ($guestoradmin == "Admin") {echo '<div class="tab" onclick=openTab("teamManagement")>Team Management</div>';} ?>
                 <!-- <div class="tab" onclick="openTab('teamOrganization')">Team Organization</div>
                 <div class="tab" onclick="openTab('teamOrganization')">Team Organization</div> -->
 
@@ -96,7 +97,7 @@ if (isset($_POST['confirmStats'])) {
         
     <div id="tabs">
 
-        <div class="tabContent" id="statGenContent" style="display: block;">
+        <div class="tabContent" id="statGenContent" style=<?php if ($guestoradmin == "Admin") {echo '"display: block;"';} else {echo '"display: none;"';} ?>>
             <form method="post">
                 <label for="matchId">Match ID:</label>
                 <input type="text" id="matchId" name="matchId" required>
@@ -117,12 +118,11 @@ if (isset($_POST['confirmStats'])) {
                         echo "Error: " . $results['error'];
                     } else {
                         echo "<pre>"; // Use <pre> tag for a more readable output
-                        // print_r($results); // Use print_r to display the array contents
-                        $playerName = getPlayerNamesFromMatch($matchId, $riotToken, $conn);
-                        $_SESSION['playerKDA'] = getPlayerKDAFromMatch($matchId, $riotToken, $conn);
+                        $_SESSION['playerKDA'] = getPlayerMatchStats($matchId, $riotToken, $conn);
+                        // print_r($_SESSION['playerKDA'] . "\n");
                         echo "Retrieved data for: \n";
-                        foreach ($_SESSION['playerKDA'] as $playerStats) {
-                            echo 'Player: ' . $playerStats['PlayerName'] . "\n";
+                        foreach ($_SESSION['playerKDA'] as $matchStats) {
+                            echo 'Player: ' . $matchStats['PlayerName'] . "\n";
                             
                         }
 
@@ -149,21 +149,21 @@ if (isset($_POST['confirmStats'])) {
                 </tr>
                 <?php
                     if (isset($_POST['submit'])) {
-                        foreach ($_SESSION['playerKDA'] as $playerStats) {
+                        foreach ($_SESSION['playerKDA'] as $matchStats) {
                             
                             echo '<tr>';
-                            echo '<td>' . $playerStats['PlayerName'] . "</td>";
-                            echo '<td>' . $playerStats['Kills'] . "</td>";
-                            echo '<td>' . $playerStats['Deaths'] . "</td>";
-                            echo '<td>' . $playerStats['Assists'] . "</td>";
-                            echo '<td>' . $playerStats['K/D'] . "</td>";
-                            echo '<td>' . $playerStats['K/D/A'] . "</td>";
-                            echo '<td>' . $playerStats['CS'] . "</td>";
-                            echo '<td>' . $playerStats['CSM'] . "</td>";
-                            echo '<td>' . $playerStats['DMG'] . "</td>";
-                            echo '<td>' . $playerStats['DMM'] . "</td>";
-                            echo '<td>' . $playerStats['VS'] . "</td>";
-                            echo '<td>' . $playerStats['KP'] . "%</td>";
+                            echo '<td>' . $matchStats['PlayerName'] . "</td>";
+                            echo '<td>' . $matchStats['Kills'] . "</td>";
+                            echo '<td>' . $matchStats['Deaths'] . "</td>";
+                            echo '<td>' . $matchStats['Assists'] . "</td>";
+                            echo '<td>' . $matchStats['K/D'] . "</td>";
+                            echo '<td>' . $matchStats['K/D/A'] . "</td>";
+                            echo '<td>' . $matchStats['CS'] . "</td>";
+                            echo '<td>' . $matchStats['CSM'] . "</td>";
+                            echo '<td>' . $matchStats['DMG'] . "</td>";
+                            echo '<td>' . $matchStats['DMM'] . "</td>";
+                            echo '<td>' . $matchStats['VS'] . "</td>";
+                            echo '<td>' . $matchStats['KP'] . "%</td>";
                             echo '</tr>';
                     
                             
@@ -178,35 +178,76 @@ if (isset($_POST['confirmStats'])) {
             if (isset($_POST['confirmStats'])) {
                 echo '<td type="hidden">
                                     <form method="post">
-                                        <input type="hidden" name="playerName" value="' . $playerStats['PlayerName'] . '">
-                                        <input type="hidden" name="kills" value="' . $playerStats['Kills'] . '">
-                                        <input type="hidden" name="deaths" value="' . $playerStats['Deaths'] . '">
-                                        <input type="hidden" name="assists" value="' . $playerStats['Assists'] . '">
-                                        <input type="hidden" name="kd" value="' . $playerStats['K/D'] . '">
-                                        <input type="hidden" name="kda" value="' . $playerStats['K/D/A'] . '">
-                                        <input type="hidden" name="cs" value="' . $playerStats['CS'] . '">
-                                        <input type="hidden" name="csm" value="' . $playerStats['CSM'] . '">
-                                        <input type="hidden" name="dmg" value="' . $playerStats['DMG'] . '">
-                                        <input type="hidden" name="dmm" value="' . $playerStats['DMM'] . '">
-                                        <input type="hidden" name="vs" value="' . $playerStats['VS'] . '">
-                                        <input type="hidden" name="kp" value="' . $playerStats['KP'] . '">
+                                        <input type="hidden" name="playerName" value="' . $matchStats['PlayerName'] . '">
+                                        <input type="hidden" name="kills" value="' . $matchStats['Kills'] . '">
+                                        <input type="hidden" name="deaths" value="' . $matchStats['Deaths'] . '">
+                                        <input type="hidden" name="assists" value="' . $matchStats['Assists'] . '">
+                                        <input type="hidden" name="kd" value="' . $matchStats['K/D'] . '">
+                                        <input type="hidden" name="kda" value="' . $matchStats['K/D/A'] . '">
+                                        <input type="hidden" name="cs" value="' . $matchStats['CS'] . '">
+                                        <input type="hidden" name="csm" value="' . $matchStats['CSM'] . '">
+                                        <input type="hidden" name="dmg" value="' . $matchStats['DMG'] . '">
+                                        <input type="hidden" name="dmm" value="' . $matchStats['DMM'] . '">
+                                        <input type="hidden" name="vs" value="' . $matchStats['VS'] . '">
+                                        <input type="hidden" name="kp" value="' . $matchStats['KP'] . '">
                                     </form>
                                 </td>';
                
             
             }
             echo' <form method="post">
-                <button type="submit" name="confirmStats" class="btn btn-success">Confirm Selected Player Stats</button>
+                <button type="submit" name="confirmStats" class="btn btn-success">Confirm and Submit Match</button>
             </form>';
             ?>
         </div>
 
 
-        <div class="tabContent" id="draftOrganizationContent" style="display: none;">
+        <div class="tabContent" id="draftOrganizationContent" style=<?php if ($guestoradmin == "Guest") {echo '"display: block;"';} else {echo '"display: none;"';} ?>>
             <!-- Content for the Setup View tab -->
-            <h2>Draft View</h2>
-            <p>This is the Draft View content.</p>
-            <p>Specific data for Draft View goes here.</p>
+            <h2>Team Stats</h2>
+
+            <table class="table table-hover table-bordered player-table">
+                <tr>
+                    <th>Player Name</th>
+                    <th>Kills</th>
+                    <th>Deaths</th>
+                    <th>Assists</th>
+                    <th>K/D</th>
+                    <th>(K+A)/D</th>
+                    <th>CS</th>
+                    <th>CS/M</th>
+                    <th>Damage</th>
+                    <th>DPM</th>
+                    <th>Vision Score</th>
+                    <th>K/P</th>
+                </tr>
+                <?php
+                    if (isset($_POST['submit'])) {
+                        foreach ($_SESSION['playerKDA'] as $matchStats) {
+                            
+                            echo '<tr>';
+                            echo '<td>' . $matchStats['PlayerName'] . "</td>";
+                            echo '<td>' . $matchStats['Kills'] . "</td>";
+                            echo '<td>' . $matchStats['Deaths'] . "</td>";
+                            echo '<td>' . $matchStats['Assists'] . "</td>";
+                            echo '<td>' . $matchStats['K/D'] . "</td>";
+                            echo '<td>' . $matchStats['K/D/A'] . "</td>";
+                            echo '<td>' . $matchStats['CS'] . "</td>";
+                            echo '<td>' . $matchStats['CSM'] . "</td>";
+                            echo '<td>' . $matchStats['DMG'] . "</td>";
+                            echo '<td>' . $matchStats['DMM'] . "</td>";
+                            echo '<td>' . $matchStats['VS'] . "</td>";
+                            echo '<td>' . $matchStats['KP'] . "%</td>";
+                            echo '</tr>';
+                    
+                            
+                            echo '</tr>';
+                        }
+
+                    }
+                ?>
+                
+            </table>
             
         </div>
 
@@ -214,7 +255,15 @@ if (isset($_POST['confirmStats'])) {
         <div class="tabContent col-md-10" id="generalStatsViewContent" style="display: none">
             EMPTY FOR NOW
         </div>
+
+        <div class="tabContent" id="teamManagementContent" style="display: none;">
+            <h1>Manage Team Stats</h1>
+    
+        </div>
     </div>
+
+
+
         
     <script>
         // Function to open a tab and display its content
