@@ -52,9 +52,9 @@ if (isset($_POST['confirmStats'])) {
                 $stmt->bind_param("sddddddddddds", $playerStats['PlayerName'], $kills, $deaths, $assists, $kd, $kda, $cs, $csm, $dmg, $dmm, $vs, $kp, $matchId);
     
                 if ($stmt->execute()) {
-                    echo "Player stats for " . htmlspecialchars(strip_tags($playerName)) . " confirmed and added to the player_stats table.<br>";
+                    echo "Player stats for " . $playerStats['PlayerName'] . " confirmed and added to the player_stats table.<br>";
                 } else {
-                    echo "Error adding player stats for " . htmlspecialchars(strip_tags($playerName)) . ": " . $stmt->error . "<br>";
+                    echo "Error adding player stats for " . $playerStats['PlayerName'] . ": " . $stmt->error . "<br>";
                 }
     
                 $stmt->close();  // Close and free resources
