@@ -20,6 +20,8 @@ if($_SESSION['isadmin'] == TRUE) {
 if (isset($_POST['confirmStats'])) {
     // Retrieve data from the form submission
     $matchId = $_POST['matchId'];
+    
+
     $playerName = $_POST['playerName'];
     $kills = $_POST['kills'];
     $deaths = $_POST['deaths'];
@@ -42,46 +44,72 @@ if (isset($_POST['confirmStats'])) {
     $checkMatchStmt->bind_param("s", $matchId);
     
     if ($ff != 1) {
+        // Check if the match_id exists in match_stats before inserting into player_stats
         if ($checkMatchStmt->execute() && $checkMatchStmt->fetch()) {
             // The match_id exists, proceed with inserting into player_stats
             $checkMatchStmt->close();  // Close the result set
     
             foreach ($_SESSION['playerKDA'] as $playerStats) {
-                // Prepare a new statement for player_stats
-                $stmt = $conn->prepare("INSERT INTO player_stats (`name`, kills, deaths, assists, kd, kad, cs, csm, dmg, dmm, vision_score, kp, match_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-                $stmt->bind_param("sddddddddddds", $playerStats['PlayerName'], $playerStats['Kills'], $playerStats['Deaths'], $playerStats['Assists'], $playerStats['K/D'], $playerStats['K/D/A'], $playerStats['CS'], $playerStats['CSM'], $playerStats['DMG'], $playerStats['DMM'], $playerStats['VS'], $playerStats['KP'], $matchId);    
-                if ($stmt->execute()) {
-                    echo "Player stats for " . $playerStats['PlayerName'] . " confirmed and added to the player_stats table.<br>";
+                // Fetch team_id from players table based on player name
+                $fetchTeamIdStmt = $conn->prepare("SELECT team_id FROM players WHERE `name` = ?");
+                $fetchTeamIdStmt->bind_param("s", $playerStats['PlayerName']);
+                $fetchTeamIdStmt->execute();
+                $fetchTeamIdStmt->bind_result($teamId);
+                
+                if ($fetchTeamIdStmt->fetch()) {
+                    // Prepare a new statement for player_stats
+                    $stmt = $conn->prepare("INSERT INTO player_stats (`name`, kills, deaths, assists, kd, kad, cs, csm, dmg, dmm, vision_score, kp, match_id, team_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                    $stmt->bind_param("sdddddddddddss", $playerStats['PlayerName'], $playerStats['Kills'], $playerStats['Deaths'], $playerStats['Assists'], $playerStats['K/D'], $playerStats['K/D/A'], $playerStats['CS'], $playerStats['CSM'], $playerStats['DMG'], $playerStats['DMM'], $playerStats['VS'], $playerStats['KP'], $matchId, $teamId);
+    
+                    if ($stmt->execute()) {
+                        echo "Player stats for " . $playerStats['PlayerName'] . " confirmed and added to the player_stats table.<br>";
+                    } else {
+                        echo "Error adding player stats for " . $playerStats['PlayerName'] . ": " . $stmt->error . "<br>";
+                    }
+    
+                    $stmt->close();  // Close and free resources
                 } else {
-                    echo "Error adding player stats for " . $playerStats['PlayerName'] . ": " . $stmt->error . "<br>";
+                    echo "Error fetching team_id for player " . $playerStats['PlayerName'] . ": " . $fetchTeamIdStmt->error . "<br>";
                 }
     
-                $stmt->close();  // Close and free resources
+                $fetchTeamIdStmt->close();
             }
         } else {
             // The match_id doesn't exist in match_stats
             // Insert match_id into match_stats
             $checkMatchStmt->close();  // Close the result set
-    
-            $insertMatchStmt = $conn->prepare("INSERT INTO match_stats (match_id) VALUES (?)");
-            $insertMatchStmt->bind_param("s", $matchId);
+            $matchTime = $_SESSION['playerKDA'][0]['MATCH_TIME'];
+            $insertMatchStmt = $conn->prepare("INSERT INTO match_stats (match_id, match_duration) VALUES (?, ?)");
+            $insertMatchStmt->bind_param("si", $matchId, $matchTime);
     
             if ($insertMatchStmt->execute()) {
                 echo "Match ID added to match_stats table. ";
     
                 // Now proceed with inserting into player_stats
                 foreach ($_SESSION['playerKDA'] as $playerStats) {
-                    // Prepare a new statement for player_stats
-                    $stmt = $conn->prepare("INSERT INTO player_stats (`name`, kills, deaths, assists, kd, kad, cs, csm, dmg, dmm, vision_score, kp, match_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-                    $stmt->bind_param("sddddddddddds", $playerStats['PlayerName'], $playerStats['Kills'], $playerStats['Deaths'], $playerStats['Assists'], $playerStats['K/D'], $playerStats['K/D/A'], $playerStats['CS'], $playerStats['CSM'], $playerStats['DMG'], $playerStats['DMM'], $playerStats['VS'], $playerStats['KP'], $matchId);    
+                    // Fetch team_id from players table based on player name
+                    $fetchTeamIdStmt = $conn->prepare("SELECT team_id FROM players WHERE `name` = ?");
+                    $fetchTeamIdStmt->bind_param("s", $playerStats['PlayerName']);
+                    $fetchTeamIdStmt->execute();
+                    $fetchTeamIdStmt->bind_result($teamId);
+                    
+                    if ($fetchTeamIdStmt->fetch()) {
+                        // Prepare a new statement for player_stats
+                        $stmt = $conn->prepare("INSERT INTO player_stats (`name`, kills, deaths, assists, kd, kad, cs, csm, dmg, dmm, vision_score, kp, match_id, team_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                        $stmt->bind_param("sddddddddddds", $playerStats['PlayerName'], $playerStats['Kills'], $playerStats['Deaths'], $playerStats['Assists'], $playerStats['K/D'], $playerStats['K/D/A'], $playerStats['CS'], $playerStats['CSM'], $playerStats['DMG'], $playerStats['DMM'], $playerStats['VS'], $playerStats['KP'], $matchId, $teamId);
     
-                    if ($stmt->execute()) {
-                        echo "Player stats for " . htmlspecialchars(strip_tags($playerName)) . " confirmed and added to the player_stats table.<br>";
+                        if ($stmt->execute()) {
+                            echo "Player stats for " . htmlspecialchars(strip_tags($playerName)) . " confirmed and added to the player_stats table.<br>";
+                        } else {
+                            echo "Error adding player stats for " . htmlspecialchars(strip_tags($playerName)) . ": " . $stmt->error . "<br>";
+                        }
+    
+                        $stmt->close();  // Close and free resources
                     } else {
-                        echo "Error adding player stats for " . htmlspecialchars(strip_tags($playerName)) . ": " . $stmt->error . "<br>";
+                        echo "Error fetching team_id for player " . $playerStats['PlayerName'] . ": " . $fetchTeamIdStmt->error . "<br>";
                     }
     
-                    $stmt->close();  // Close and free resources
+                    $fetchTeamIdStmt->close();
                 }
             } else {
                 echo "Error adding match ID to match_stats table: " . $insertMatchStmt->error . "<br>";
@@ -92,13 +120,6 @@ if (isset($_POST['confirmStats'])) {
     } else {
         echo "Game ended in forfeit. Not valid";
     }
-    
-    
-
-
-
-
-
 }
 
 
@@ -186,9 +207,9 @@ if (isset($_POST['confirmStats'])) {
             }
             
             ?>
-            <span>Game Length:</span>
             <?php 
                 if (isset($_POST['submit'])) {
+                    echo '<span>Game Length:</span>';
 
                     $minutes = floor($_SESSION['playerKDA'][0]['MATCH_TIME'] / 60);
                     $remainingSeconds = $_SESSION['playerKDA'][0]['MATCH_TIME'] % 60;
