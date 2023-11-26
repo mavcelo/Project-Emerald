@@ -47,7 +47,7 @@ if (isset($_POST['confirmStats'])) {
 
             foreach ($_SESSION['playerKDA'] as $playerStats) {
                 $stmt = $conn->prepare("INSERT INTO player_stats (`name`, kills, deaths, assists, kd, kad, cs, csm, dmg, dmm, vision_score, kp, match_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-                $stmt->bind_param("siiiiiiiiiiis", $playerStats['PlayerName'], $playerStats['Kills'], $playerStats['Deaths'], $playerStats['Assists'], $playerStats['K/D'], $playerStats['K/D/A'], $playerStats['CS'], $playerStats['CSM'], $playerStats['DMG'], $playerStats['DMM'], $playerStats['VS'], $playerStats['KP'], $matchId);
+                $stmt->bind_param("siiiffifififs", $playerStats['PlayerName'], $playerStats['Kills'], $playerStats['Deaths'], $playerStats['Assists'], $playerStats['K/D'], $playerStats['K/D/A'], $playerStats['CS'], $playerStats['CSM'], $playerStats['DMG'], $playerStats['DMM'], $playerStats['VS'], $playerStats['KP'], $matchId);
 
                 if ($stmt->execute()) {
                     echo "Player stats for " . $playerStats['PlayerName'] . " confirmed and added to the player_stats table.<br>";
@@ -71,7 +71,7 @@ if (isset($_POST['confirmStats'])) {
                 // Now proceed with inserting into player_stats
                 foreach ($_SESSION['playerKDA'] as $playerStats) {
                     $stmt = $conn->prepare("INSERT INTO player_stats (`name`, kills, deaths, assists, kd, kad, cs, csm, dmg, dmm, vision_score, kp, match_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-                    $stmt->bind_param("siiiiiiiiiiis", $playerStats['PlayerName'], $playerStats['Kills'], $playerStats['Deaths'], $playerStats['Assists'], $playerStats['K/D'], $playerStats['K/D/A'], $playerStats['CS'], $playerStats['CSM'], $playerStats['DMG'], $playerStats['DMM'], $playerStats['VS'], $playerStats['KP'], $matchId);
+                    $stmt->bind_param("siiiffifififs", $playerStats['PlayerName'], $playerStats['Kills'], $playerStats['Deaths'], $playerStats['Assists'], $playerStats['K/D'], $playerStats['K/D/A'], $playerStats['CS'], $playerStats['CSM'], $playerStats['DMG'], $playerStats['DMM'], $playerStats['VS'], $playerStats['KP'], $matchId);
 
                     if ($stmt->execute()) {
                         echo "Player stats for " . $playerStats['PlayerName'] . " confirmed and added to the player_stats table.<br>";
@@ -117,7 +117,7 @@ if (isset($_POST['confirmStats'])) {
                 <a class="navbar-brand" href="/dashboard.php">Dashboard</a>
 
                 <?php if ($guestoradmin == "Admin") {echo '<div class="tab active" onclick=openTab("statGen")>Generate Stats</div>';} ?>
-                <?php if ($guestoradmin == "Guest") {echo '<div class="tab active" onclick=openTab("draftOrganization")>Team Stats</div>';} else {echo '<div class="tab" onclick=openTab("draftOrganization")>Team Stats</div>';}?>
+                <?php if ($guestoradmin == "Guest") {echo '<div class="tab active" onclick=openTab("teamStats")>Team Stats</div>';} else {echo '<div class="tab" onclick=openTab("teamStats")>Team Stats</div>';}?>
                 <div class="tab" onclick="openTab('generalStatsView')">Overall Player Stats</div>
                 <?php if ($guestoradmin == "Admin") {echo '<div class="tab" onclick=openTab("teamManagement")>Team Management</div>';} ?>
                 <!-- <div class="tab" onclick="openTab('teamOrganization')">Team Organization</div>
@@ -256,7 +256,7 @@ if (isset($_POST['confirmStats'])) {
         </div>
 
 
-        <div class="tabContent" id="draftOrganizationContent" style=<?php if ($guestoradmin == "Guest") {echo '"display: block;"';} else {echo '"display: none;"';} ?>>
+        <div class="tabContent" id="teamStatsContent" style=<?php if ($guestoradmin == "Guest") {echo '"display: block;"';} else {echo '"display: none;"';} ?>>
             <!-- Content for the Setup View tab -->
             <h2>Team Stats</h2>
 
@@ -277,29 +277,40 @@ if (isset($_POST['confirmStats'])) {
                 </tr>
                 <?php
                     if (isset($_POST['submit'])) {
-                        foreach ($_SESSION['playerKDA'] as $matchStats) {
-                            
-                            echo '<tr>';
-                            echo '<td>' . $matchStats['PlayerName'] . "</td>";
-                            echo '<td>' . $matchStats['Kills'] . "</td>";
-                            echo '<td>' . $matchStats['Deaths'] . "</td>";
-                            echo '<td>' . $matchStats['Assists'] . "</td>";
-                            echo '<td>' . $matchStats['K/D'] . "</td>";
-                            echo '<td>' . $matchStats['K/D/A'] . "</td>";
-                            echo '<td>' . $matchStats['CS'] . "</td>";
-                            echo '<td>' . $matchStats['CSM'] . "</td>";
-                            echo '<td>' . $matchStats['DMG'] . "</td>";
-                            echo '<td>' . $matchStats['DMM'] . "</td>";
-                            echo '<td>' . $matchStats['VS'] . "</td>";
-                            echo '<td>' . $matchStats['KP'] . "%</td>";
-                            echo '</tr>';
-                    
-                            
-                            echo '</tr>';
+
+                        // Fetch data from the player_stats table
+                        $stmt = $conn->prepare("SELECT * FROM player_stats");
+                        $stmt->execute();
+                        $result = $stmt->get_result();
+
+                        // Check if there are rows in the result
+                        if ($result->num_rows > 0) {
+                            while ($matchStats = $result->fetch_assoc()) {
+                                echo '<tr>';
+                                echo '<td>' . $matchStats['name'] . "</td>";
+                                echo '<td>' . $matchStats['kills'] . "</td>";
+                                echo '<td>' . $matchStats['deaths'] . "</td>";
+                                echo '<td>' . $matchStats['assists'] . "</td>";
+                                echo '<td>' . $matchStats['kd'] . "</td>";
+                                echo '<td>' . $matchStats['kad'] . "</td>";
+                                echo '<td>' . $matchStats['cs'] . "</td>";
+                                echo '<td>' . $matchStats['csm'] . "</td>";
+                                echo '<td>' . $matchStats['dmg'] . "</td>";
+                                echo '<td>' . $matchStats['dmm'] . "</td>";
+                                echo '<td>' . $matchStats['vs'] . "</td>";
+                                echo '<td>' . $matchStats['kp'] . "%</td>";
+                                echo '</tr>';
+                            }
+                        } else {
+                            echo '<tr><td colspan="12">No player stats found.</td></tr>';
                         }
 
+                        // Close the statement and database connection
+                        $stmt->close();
+                        $conn->close();
                     }
-                ?>
+                    ?>
+
                 
             </table>
             
