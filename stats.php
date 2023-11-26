@@ -187,7 +187,7 @@ if (isset($_POST['confirmStats'])) {
                     echo "<pre>"; // Use <pre> tag for a more readable output
                     // print_r($results); // Use print_r to display the array contents
                     $playerName = getPlayerNamesFromMatch($matchId, $riotToken, $conn);
-                    $_SESSION['playerKDA'] = getPlayerKDAFromMatch($matchId, $riotToken, $conn);
+                    $_SESSION['playerKDA'] = getPlayerMatchStats($matchId, $riotToken, $conn);
                     echo "Retrieved data for: \n";
                     foreach ($_SESSION['playerKDA'] as $playerStats) {
                         echo 'Player: ' . $playerStats['PlayerName'] . "\n";
@@ -246,20 +246,20 @@ if (isset($_POST['confirmStats'])) {
             if (isset($_POST['submit'])) {
                 echo '
                     <form method="post">
-                        <input type="hidden" name="matchId" value="' . $_POST['matchId'] . '">
-                        <input type="hidden" name="playerName" value="' . $playerStats['PlayerName'] . '">
-                        <input type="hidden" name="kills" value="' . $playerStats['Kills'] . '">
-                        <input type="hidden" name="deaths" value="' . $playerStats['Deaths'] . '">
-                        <input type="hidden" name="assists" value="' . $playerStats['Assists'] . '">
-                        <input type="hidden" name="kd" value="' . $playerStats['K/D'] . '">
-                        <input type="hidden" name="kda" value="' . $playerStats['K/D/A'] . '">
-                        <input type="hidden" name="ff" value="' . $playerStats['FF'] . '">
-                        <input type="hidden" name="cs" value="' . $playerStats['CS'] . '">
-                        <input type="hidden" name="csm" value="' . $playerStats['CSM'] . '">
-                        <input type="hidden" name="dmg" value="' . $playerStats['DMG'] . '">
-                        <input type="hidden" name="dmm" value="' . $playerStats['DMM'] . '">
-                        <input type="hidden" name="vs" value="' . $playerStats['VS'] . '">
-                        <input type="hidden" name="kp" value="' . $playerStats['KP'] . '">
+                        <input type="hidden" name="matchId" value="' . htmlspecialchars(strip_tags($_POST['matchId'])) . '">
+                        <input type="hidden" name="playerName" value="' . htmlspecialchars(strip_tags($playerStats['PlayerName'])) . '">
+                        <input type="hidden" name="kills" value="' . htmlspecialchars(strip_tags($playerStats['Kills'])) . '">
+                        <input type="hidden" name="deaths" value="' . htmlspecialchars(strip_tags($playerStats['Deaths'])) . '">
+                        <input type="hidden" name="assists" value="' . htmlspecialchars(strip_tags($playerStats['Assists'])) . '">
+                        <input type="hidden" name="kd" value="' . htmlspecialchars(strip_tags($playerStats['K/D'])) . '">
+                        <input type="hidden" name="kda" value="' . htmlspecialchars(strip_tags($playerStats['K/D/A'])) . '">
+                        <input type="hidden" name="ff" value="' . htmlspecialchars(strip_tags($playerStats['FF'])) . '">
+                        <input type="hidden" name="cs" value="' . htmlspecialchars(strip_tags($playerStats['CS'])) . '">
+                        <input type="hidden" name="csm" value="' . htmlspecialchars(strip_tags($playerStats['CSM'])) . '">
+                        <input type="hidden" name="dmg" value="' . htmlspecialchars(strip_tags($playerStats['DMG'])) . '">
+                        <input type="hidden" name="dmm" value="' . htmlspecialchars(strip_tags($playerStats['DMM'])) . '">
+                        <input type="hidden" name="vs" value="' . htmlspecialchars(strip_tags($playerStats['VS'])) . '">
+                        <input type="hidden" name="kp" value="' . htmlspecialchars(strip_tags($playerStats['KP'])) . '">
                         <button type="submit" name="confirmStats" class="btn btn-success">Confirm Selected Player Stats</button>
 
                     </form>';
