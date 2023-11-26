@@ -37,13 +37,6 @@ if (isset($_POST['confirmStats'])) {
     // Perform the insertion into the player_stats table
     // Use prepared statements to prevent SQL injection
 
-<<<<<<< HEAD
-    $stmt = $conn->prepare("INSERT INTO player_stats (`name`, kills, deaths, assists, kd, kad, cs, csm, dmg, dmm, vision_score, kp, match_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("siiiiiiiiiiis", $playerName, $kills, $deaths, $assists, $kd, $kda, $cs, $csm, $dmg, $dmm, $vs, $kp, $matchId);
-    
-    if ($stmt->execute()) {
-        echo "Player stats confirmed and submitted";
-=======
     // Check if the match_id exists in match_stats before inserting into player_stats
     $checkMatchStmt = $conn->prepare("SELECT match_id FROM match_stats WHERE match_id = ?");
     $checkMatchStmt->bind_param("s", $matchId);
@@ -94,7 +87,6 @@ if (isset($_POST['confirmStats'])) {
 
             $insertMatchStmt->close();
         }
->>>>>>> refs/remotes/origin/main
     } else {
         echo "Game ended in forfeit. Not valid";
     }
@@ -165,7 +157,6 @@ if (isset($_POST['confirmStats'])) {
             <?php 
             $riotToken = $_SESSION['riotApiKey'];
             // get vds stats here
-<<<<<<< HEAD
                 if (isset($_POST['submit'])) {
                     $matchId = htmlspecialchars($_POST['matchId']);
                     
@@ -182,8 +173,8 @@ if (isset($_POST['confirmStats'])) {
                             echo 'Player: ' . $matchStats['PlayerName'] . "\n";
                             
                         }
-=======
->>>>>>> refs/remotes/origin/main
+                    }
+                }
 
             if (isset($_POST['submit'])) {
                 $matchId = htmlspecialchars($_POST['matchId']);
@@ -252,31 +243,6 @@ if (isset($_POST['confirmStats'])) {
                 
             </table>
             <?php 
-<<<<<<< HEAD
-            if (isset($_POST['confirmStats'])) {
-                echo '<td type="hidden">
-                                    <form method="post">
-                                        <input type="hidden" name="playerName" value="' . $matchStats['PlayerName'] . '">
-                                        <input type="hidden" name="kills" value="' . $matchStats['Kills'] . '">
-                                        <input type="hidden" name="deaths" value="' . $matchStats['Deaths'] . '">
-                                        <input type="hidden" name="assists" value="' . $matchStats['Assists'] . '">
-                                        <input type="hidden" name="kd" value="' . $matchStats['K/D'] . '">
-                                        <input type="hidden" name="kda" value="' . $matchStats['K/D/A'] . '">
-                                        <input type="hidden" name="cs" value="' . $matchStats['CS'] . '">
-                                        <input type="hidden" name="csm" value="' . $matchStats['CSM'] . '">
-                                        <input type="hidden" name="dmg" value="' . $matchStats['DMG'] . '">
-                                        <input type="hidden" name="dmm" value="' . $matchStats['DMM'] . '">
-                                        <input type="hidden" name="vs" value="' . $matchStats['VS'] . '">
-                                        <input type="hidden" name="kp" value="' . $matchStats['KP'] . '">
-                                    </form>
-                                </td>';
-               
-            
-            }
-            echo' <form method="post">
-                <button type="submit" name="confirmStats" class="btn btn-success">Confirm and Submit Match</button>
-            </form>';
-=======
             if (isset($_POST['submit'])) {
                 echo '
                     <form method="post">
@@ -304,7 +270,6 @@ if (isset($_POST['confirmStats'])) {
             }
            
             
->>>>>>> refs/remotes/origin/main
             ?>
         </div>
 
