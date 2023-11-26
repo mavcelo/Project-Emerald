@@ -276,39 +276,36 @@ if (isset($_POST['confirmStats'])) {
                     <th>K/P</th>
                 </tr>
                 <?php
-                    if (isset($_POST['submit'])) {
+                    // Fetch data from the player_stats table
+                    $stmt = $conn->prepare("SELECT * FROM player_stats");
+                    $stmt->execute();
+                    $result = $stmt->get_result();
 
-                        // Fetch data from the player_stats table
-                        $stmt = $conn->prepare("SELECT * FROM player_stats");
-                        $stmt->execute();
-                        $result = $stmt->get_result();
-
-                        // Check if there are rows in the result
-                        if ($result->num_rows > 0) {
-                            while ($matchStats = $result->fetch_assoc()) {
-                                echo '<tr>';
-                                echo '<td>' . $matchStats['name'] . "</td>";
-                                echo '<td>' . $matchStats['kills'] . "</td>";
-                                echo '<td>' . $matchStats['deaths'] . "</td>";
-                                echo '<td>' . $matchStats['assists'] . "</td>";
-                                echo '<td>' . $matchStats['kd'] . "</td>";
-                                echo '<td>' . $matchStats['kad'] . "</td>";
-                                echo '<td>' . $matchStats['cs'] . "</td>";
-                                echo '<td>' . $matchStats['csm'] . "</td>";
-                                echo '<td>' . $matchStats['dmg'] . "</td>";
-                                echo '<td>' . $matchStats['dmm'] . "</td>";
-                                echo '<td>' . $matchStats['vs'] . "</td>";
-                                echo '<td>' . $matchStats['kp'] . "%</td>";
-                                echo '</tr>';
-                            }
-                        } else {
-                            echo '<tr><td colspan="12">No player stats found.</td></tr>';
+                    // Check if there are rows in the result
+                    if ($result->num_rows > 0) {
+                        while ($matchStats = $result->fetch_assoc()) {
+                            echo '<tr>';
+                            echo '<td>' . $matchStats['name'] . "</td>";
+                            echo '<td>' . $matchStats['kills'] . "</td>";
+                            echo '<td>' . $matchStats['deaths'] . "</td>";
+                            echo '<td>' . $matchStats['assists'] . "</td>";
+                            echo '<td>' . $matchStats['kd'] . "</td>";
+                            echo '<td>' . $matchStats['kad'] . "</td>";
+                            echo '<td>' . $matchStats['cs'] . "</td>";
+                            echo '<td>' . $matchStats['csm'] . "</td>";
+                            echo '<td>' . $matchStats['dmg'] . "</td>";
+                            echo '<td>' . $matchStats['dmm'] . "</td>";
+                            echo '<td>' . $matchStats['vision_score'] . "</td>";
+                            echo '<td>' . $matchStats['kp'] . "%</td>";
+                            echo '</tr>';
                         }
-
-                        // Close the statement and database connection
-                        $stmt->close();
-                        $conn->close();
+                    } else {
+                        echo '<tr><td colspan="12">No player stats found.</td></tr>';
                     }
+
+                    // Close the statement and database connection
+                    $stmt->close();
+                    $conn->close();
                     ?>
 
                 
