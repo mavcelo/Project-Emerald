@@ -322,7 +322,7 @@ function getExistingNamesFromDatabase($conn) {
 
 // returns all player names, kills, deaths, assists from match
 
-function getPlayerKDAFromMatch($matchId, $riotToken, $conn) {
+function getPlayerMatchStats($matchId, $riotToken, $conn) {
     // Get match data using your function to fetch data from the Riot API
     $matchData = getMatchData($matchId, $riotToken);
     // Check if the 'participants' key exists in the match data
@@ -330,12 +330,12 @@ function getPlayerKDAFromMatch($matchId, $riotToken, $conn) {
         $participants = $matchData['info']['participants'];
 
         // Initialize arrays to store player statistics
-        $playerStats = array();
+        $matchStats = array();
 
         // Check the database for existing PUUIDs and names
         $existingPuuids = getExistingPuuidsFromDatabase($conn);
         $existingNames = getExistingNamesFromDatabase($conn);
-        print_r($matchData);
+        // print_r($matchData);
         foreach ($participants as $participant) {
             $puuid = $participant['puuid'];
             $playerName = $participant['summonerName'];
@@ -359,7 +359,7 @@ function getPlayerKDAFromMatch($matchId, $riotToken, $conn) {
                 $dmg = $participant['totalDamageDealtToChampions'];
                 $dmm = round($participant['challenges']['damagePerMinute'], 2);
                 $kp = round($kp, 4) * 100;
-                $playerStats[] = array(
+                $matchStats[] = array(
                     'PlayerName' => $playerName,
                     'Kills' => $kills,
                     'Deaths' => $deaths,
@@ -383,7 +383,7 @@ function getPlayerKDAFromMatch($matchId, $riotToken, $conn) {
         }
 
         // Return the array of player statistics
-        return $playerStats;
+        return $matchStats;
     } else {
         return [];
     }
