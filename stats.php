@@ -157,24 +157,6 @@ if (isset($_POST['confirmStats'])) {
             <?php 
             $riotToken = $_SESSION['riotApiKey'];
             // get vds stats here
-                if (isset($_POST['submit'])) {
-                    $matchId = htmlspecialchars($_POST['matchId']);
-                    
-                    $results = getMatchData($matchId, $riotToken);
-                
-                    if (isset($results['error'])) {
-                        echo "Error: " . $results['error'];
-                    } else {
-                        echo "<pre>"; // Use <pre> tag for a more readable output
-                        $_SESSION['playerKDA'] = getPlayerMatchStats($matchId, $riotToken, $conn);
-                        // print_r($_SESSION['playerKDA'] . "\n");
-                        echo "Retrieved data for: \n";
-                        foreach ($_SESSION['playerKDA'] as $matchStats) {
-                            echo 'Player: ' . $matchStats['PlayerName'] . "\n";
-                            
-                        }
-                    }
-                }
 
             if (isset($_POST['submit'])) {
                 $matchId = htmlspecialchars($_POST['matchId']);
