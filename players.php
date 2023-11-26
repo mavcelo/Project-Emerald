@@ -38,21 +38,19 @@ function verifyRank($rankParam, $ignParam) {
     $actualRank = "Need Verify";
 
     if (strlen($rankParam) < 12) {
-        if (isset($_POST['api_key'])) {
-            if ($_POST['api_key'] == "Optional") {
-                // add code to verify if rank is correct. leave as user input for now
+        if ($_POST['api_key'] == "Optional") {
+            // add code to verify if rank is correct. leave as user input for now
+            $actualRank = $rankParam;
+        } else {
+            $api_key = $_SESSION['riotApiKey'];
+            $verifiedRank = getSummonerRank($ignParam, $api_key);
+            if (strpos($verifiedRank, 'Error') !== True) {
+                // error was found
                 $actualRank = $rankParam;
             } else {
-                $api_key = htmlspecialchars(strip_tags($_POST['api_key']));
-                $verifiedRank = getSummonerRank($ignParam, $api_key);
-                if (strpos($verifiedRank, 'Error') !== True) {
-                    // error was found
-                    $actualRank = $rankParam;
-                } else {
-                    // Error, was not found in string, therfore, success
-                    $actualRank = $rankParam;
-                    
-                }
+                // Error, was not found in string, therfore, success
+                $actualRank = $rankParam;
+                
             }
         }
     }
