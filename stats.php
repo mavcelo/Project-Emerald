@@ -188,10 +188,10 @@ if (isset($_POST['confirmStats'])) {
             ?>
             <span>Game Length:</span>
             <?php 
-            //$minutes = floor($_SESSION['playerKDA'] / 60);
-            //$remainingSeconds = $_SESSION['playerKDA'] % 60;
+            $minutes = floor($_SESSION['playerKDA'][0] / 60);
+            $remainingSeconds = $_SESSION['playerKDA'][0] % 60;
             
-           // echo '<span>' . $minutes . ":" . $remainingSeconds . "</span>"; ?>
+            echo '<span>' . $minutes . ":" . $remainingSeconds . "</span>"; ?>
             <table class="table table-hover table-striped player-table">
                 <tr>
                     <th>Player Name</th>
